@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+
+{% block title %}View Rooms - Hostel Management{% endblock %}
+{% block page_title %}Rooms List{% endblock %}
+
+{% block content %}
+<div class="actions-bar">
+    <a href="{{ url_for('room.add_room') }}" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Add New Room</a>
+</div>
+
+<div class="search-filter-form mb-3 card p-3">
+    <form method="GET" action="{{ url_for('room.view_rooms') }}" class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label for="room_number" class="form-label">Search Room Number:</label>
+            <input type="text" id="room_number" name="room_number" class="form-control form-control-sm" value="{{ search_params.room_number if search_params else '' }}">
+        </div>
+        <div class="col-md-4">
+            <label for="filter_status" class="form-label">Filter by Status:</label>
+            <select id="filter_status" name="filter_status" class="form-select form-select-sm">
+                <option value="">All Statuses</option>
+                {% for status in room_statuses %}
+                <option value="{{ status }}" {% if search_params and search_params.filter_status == status %}selected{% endif %}>{{ status }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-info btn-sm" title="Search"><i class="fas fa-search"></i> <span class="visually-hidden">Search</span></button>        </div>
+        <div class="col-md-2 d-grid">
+            <a href="{{ url_for('room.view_rooms') }}" class="btn btn-secondary btn-sm" title="Clear Filters"><i class="fas fa-times"></i> <span class="visually-hidden">Clear Filters</span></a>
+        </div>
+    </form>
+</div>
+
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Room Number</th>
+                <th>Capacity</th>
+                <th>Current Occupancy</th>
+                <th>Status</th>
+                <th>Students</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for room in rooms %}
+            <tr>
+                <td>{{ room.id }}</td>
+                <td>{{ room.room_number }}</td>
+                <td>{{ room.capacity }}</td>
+                <td>{{ room.current_occupancy }}</td>
+                <td>
+                    <span class="status-badge status-{{ room.status.lower() }}">{{ room.status }}</span>
+                </td>                <td>
+                    {% if room.students %}
+                        <div class="student-list">
+                            {% for student in room.students %}
+                            <div><a href="{{ url_for('student.edit_student', student_id=student.id) }}">{{ student.name }}</a></div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td class="table-actions">
+                    <a href="{{ url_for('room.edit_room', room_id=room.id) }}" class="btn-action btn-edit" title="Edit"><i class="fas fa-edit"></i></a>
+                    <form method="POST" action="{{ url_for('room.delete_room', room_id=room.id) }}" class="d-inline">
+                        <button type="submit" class="btn-action btn-delete" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center">No rooms found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

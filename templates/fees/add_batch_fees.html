@@ -1,0 +1,213 @@
+{% extends "layout.html" %}
+
+{% block title %}Batch Fee Payment - Hostel Management{% endblock %}
+
+{% block page_title %}Batch Fee Payment Processing{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Add Fees for Multiple Students</h5>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('fee.add_batch_fees') }}" method="post">
+                <div class="row mb-3">
+                    <div class="col-md-6">                        <label for="amount" class="form-label">Fee Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="amount" name="amount" required min="0" step="0.01" placeholder="Enter fee amount" title="Fee amount in dollars">
+                        </div>
+                    </div>                    <div class="col-md-6">
+                        <label for="due_date" class="form-label">Due Date</label>
+                        <input type="date" class="form-control" id="due_date" name="due_date" required title="Date when the fee is due">
+                    </div>
+                </div>
+                
+                <div class="row mb-3">                    <div class="col-md-12">
+                        <label for="description" class="form-label">Fee Description</label>
+                        <input type="text" class="form-control" id="description" name="description" placeholder="Monthly Hostel Fee, Security Deposit, etc." title="Description of the fee">
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Select Students</h6>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="select-all">Select All</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all">Deselect All</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="student-search" placeholder="Search students..." title="Search for students by name">
+                            </div>
+                            <div class="col-md-4">                                <select class="form-select" id="course-filter" title="Filter students by course">
+                                    <option value="">All Courses</option>
+                                    {% for course in courses %}
+                                    <option value="{{ course }}">{{ course }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">                                <select class="form-select" id="room-filter" title="Filter students by room">
+                                    <option value="">All Rooms</option>
+                                    {% for room in rooms %}
+                                    <option value="{{ room.room_number }}">{{ room.room_number }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>                                        <th>
+                                            <input type="checkbox" class="form-check-input" id="check-all" title="Select all students">
+                                        </th>
+                                        <th>Name</th>
+                                        <th>ID Number</th>
+                                        <th>Course</th>
+                                        <th>Room</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="student-list">
+                                    {% for student in students %}
+                                    <tr class="student-row" 
+                                        data-name="{{ student.name }}" 
+                                        data-course="{{ student.course }}" 
+                                        data-room="{{ student.room_number }}">                                        <td>
+                                            <input type="checkbox" class="form-check-input student-check" name="student_ids" value="{{ student.id }}" title="Select {{ student.name }}">
+                                        </td>
+                                        <td>{{ student.name }}</td>
+                                        <td>{{ student.student_id_number }}</td>
+                                        <td>{{ student.course }}</td>
+                                        <td>{{ student.room_number or 'Not Assigned' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                          <div id="selection-summary" class="alert alert-info mt-3 d-none">
+                            <span id="selected-count">0</span> students selected
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('fee.view_fees') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Process Batch Fees</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkAll = document.getElementById('check-all');
+        const studentChecks = document.querySelectorAll('.student-check');
+        const selectAllBtn = document.getElementById('select-all');
+        const deselectAllBtn = document.getElementById('deselect-all');
+        const selectionSummary = document.getElementById('selection-summary');
+        const selectedCount = document.getElementById('selected-count');
+        const studentSearch = document.getElementById('student-search');
+        const courseFilter = document.getElementById('course-filter');
+        const roomFilter = document.getElementById('room-filter');
+        const studentRows = document.querySelectorAll('.student-row');
+        
+        // Update selection summary
+        function updateSelectionSummary() {
+            const checkedCount = document.querySelectorAll('.student-check:checked').length;
+            selectedCount.textContent = checkedCount;
+            selectionSummary.style.display = checkedCount > 0 ? 'block' : 'none';
+        }
+        
+        // Check/uncheck all students
+        checkAll.addEventListener('change', function() {
+            studentChecks.forEach(check => {
+                const row = check.closest('tr');
+                if (row.style.display !== 'none') { // Only apply to visible rows
+                    check.checked = checkAll.checked;
+                }
+            });
+            updateSelectionSummary();
+        });
+        
+        // Update "check all" state when individual checkboxes change
+        studentChecks.forEach(check => {
+            check.addEventListener('change', function() {
+                updateSelectionSummary();
+                
+                // Check if all visible checkboxes are checked
+                const visibleChecks = Array.from(studentChecks).filter(c => 
+                    c.closest('tr').style.display !== 'none');
+                const allChecked = visibleChecks.every(c => c.checked);
+                const someChecked = visibleChecks.some(c => c.checked);
+                
+                checkAll.checked = allChecked;
+                checkAll.indeterminate = someChecked && !allChecked;
+            });
+        });
+        
+        // Select all button
+        selectAllBtn.addEventListener('click', function() {
+            studentChecks.forEach(check => {
+                const row = check.closest('tr');
+                if (row.style.display !== 'none') { // Only apply to visible rows
+                    check.checked = true;
+                }
+            });
+            checkAll.checked = true;
+            checkAll.indeterminate = false;
+            updateSelectionSummary();
+        });
+        
+        // Deselect all button
+        deselectAllBtn.addEventListener('click', function() {
+            studentChecks.forEach(check => check.checked = false);
+            checkAll.checked = false;
+            checkAll.indeterminate = false;
+            updateSelectionSummary();
+        });
+        
+        // Search and filter functions
+        function applyFilters() {
+            const searchText = studentSearch.value.toLowerCase();
+            const courseValue = courseFilter.value;
+            const roomValue = roomFilter.value;
+            
+            studentRows.forEach(row => {
+                const name = row.getAttribute('data-name').toLowerCase();
+                const course = row.getAttribute('data-course');
+                const room = row.getAttribute('data-room') || '';
+                
+                const matchesSearch = name.includes(searchText);
+                const matchesCourse = !courseValue || course === courseValue;
+                const matchesRoom = !roomValue || room === roomValue;
+                
+                row.style.display = (matchesSearch && matchesCourse && matchesRoom) ? '' : 'none';
+            });
+            
+            // Update "check all" state for visible rows
+            const visibleChecks = Array.from(studentChecks).filter(c => 
+                c.closest('tr').style.display !== 'none');
+            const allChecked = visibleChecks.every(c => c.checked);
+            const someChecked = visibleChecks.some(c => c.checked);
+            
+            checkAll.checked = allChecked && visibleChecks.length > 0;
+            checkAll.indeterminate = someChecked && !allChecked;
+        }
+        
+        // Apply filters on input changes
+        studentSearch.addEventListener('input', applyFilters);
+        courseFilter.addEventListener('change', applyFilters);
+        roomFilter.addEventListener('change', applyFilters);
+        
+        // Initialize
+        updateSelectionSummary();
+    });
+</script>
+{% endblock %}

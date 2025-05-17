@@ -1,0 +1,182 @@
+/* Fee Calendar CSS for Hostel Management System */
+
+.calendar-container {
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    text-align: center;
+    font-weight: 600;
+    padding: 0.5rem 0;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: minmax(100px, auto);
+    gap: 1px;
+    background-color: #dee2e6;
+}
+
+.calendar-day {
+    background-color: white;
+    padding: 0.5rem;
+    min-height: 100px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.calendar-day:hover {
+    background-color: #f8f9fa;
+}
+
+.calendar-day.other-month {
+    background-color: #f8f9fa;
+    color: #adb5bd;
+}
+
+.calendar-day.today {
+    box-shadow: inset 0 0 0 2px #0d6efd;
+}
+
+.day-number {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.fee-count {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: #6c757d;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+/* Fee status colors */
+.calendar-day.all-paid {
+    background-color: rgba(76, 175, 80, 0.2);
+}
+
+.calendar-day.all-pending {
+    background-color: rgba(33, 150, 243, 0.4);
+}
+
+.calendar-day.all-overdue {
+    background-color: rgba(244, 67, 54, 0.3);
+}
+
+.calendar-day.mixed-status {
+    background-color: rgba(255, 152, 0, 0.3);
+}
+
+/* Calendar legend */
+.calendar-legend {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #dee2e6;
+}
+
+.legend-color.no-fees {
+    background-color: #e3f2fd;
+}
+
+.legend-color.all-paid {
+    background-color: #4caf50;
+    opacity: 0.2;
+}
+
+.legend-color.pending {
+    background-color: #2196f3;
+    opacity: 0.4;
+}
+
+.legend-color.overdue {
+    background-color: #f44336;
+    opacity: 0.3;
+}
+
+.legend-color.mixed {
+    background-color: #ff9800;
+    opacity: 0.3;
+}
+
+/* Hide/show custom date range fields */
+.date-range-custom.hidden {
+    display: none;
+}
+
+.date-range-custom.visible {
+    display: block;
+}
+
+/* Fee Summary in modal */
+.fee-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.summary-item .label {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.summary-item .value {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .calendar-grid {
+        grid-auto-rows: minmax(80px, auto);
+    }
+    
+    .calendar-day {
+        min-height: 80px;
+        padding: 0.25rem;
+    }
+    
+    .fee-count {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+    }
+}

@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Fee - Hostel Management{% endblock %}
+
+{% block page_title %}Add New Fee{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <form method="post" action="{{ url_for('fee.add_fee') }}" class="styled-form">
+        <div class="form-group">
+            <label for="student_id">Student</label>
+            <select name="student_id" id="student_id" class="form-control" required>
+                <option value="">Select a student</option>
+                {% for student in students %}
+                <option value="{{ student.id }}">{{ student.name }} ({{ student.student_id_number or 'No ID' }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="amount">Amount ($)</label>
+            <input type="number" name="amount" id="amount" class="form-control" step="0.01" min="0.01" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="due_date">Due Date</label>
+            <input type="date" name="due_date" id="due_date" class="form-control" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select name="status" id="status" class="form-control">
+                <option value="Pending">Pending</option>
+                <option value="Paid">Paid</option>
+            </select>
+        </div>
+        
+        <div class="form-group paid-date-container" style="display: none;">
+            <label for="paid_date">Payment Date</label>
+            <input type="date" name="paid_date" id="paid_date" class="form-control">
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Fee</button>
+            <a href="{{ url_for('fee.view_fees') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Show/hide paid date field based on status
+    document.getElementById('status').addEventListener('change', function() {
+        var paidDateContainer = document.querySelector('.paid-date-container');
+        if (this.value === 'Paid') {
+            paidDateContainer.style.display = 'block';
+            // Set default value to today
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById('paid_date').value = today;
+        } else {
+            paidDateContainer.style.display = 'none';
+        }
+    });
+    
+    // Set default due date to 30 days from now
+    window.addEventListener('load', function() {
+        var thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+        var formattedDate = thirtyDaysFromNow.toISOString().split('T')[0];
+        document.getElementById('due_date').value = formattedDate;
+    });
+</script>
+{% endblock %}

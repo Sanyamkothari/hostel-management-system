@@ -1,0 +1,193 @@
+{% extends "layout.html" %}
+
+{% block title %}Fee Reports - Hostel Management{% endblock %}
+
+{% block page_title %}Fee Payment Reports{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/fee-reports.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <!-- Report Filters -->
+    <div class="report-card">
+        <h3>Report Filters</h3>        <form method="get" action="{{ url_for('fee.fee_reports') }}" class="report-filters" aria-label="Fee report filter form">
+            <div class="form-group">
+                <label for="period">Report Period</label>
+                <select name="period" id="period" class="form-control" title="Select report period">
+                    <option value="monthly" {% if period == 'monthly' %}selected{% endif %}>Monthly</option>
+                    <option value="quarterly" {% if period == 'quarterly' %}selected{% endif %}>Quarterly</option>
+                    <option value="yearly" {% if period == 'yearly' %}selected{% endif %}>Yearly</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="year-group">
+                <label for="year">Year</label>
+                <select name="year" id="year" class="form-control" title="Select year">
+                    {% for y in range(current_date.year-2, current_date.year+2) %}
+                    <option value="{{ y }}" {% if year == y %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group" id="month-group" {% if period != 'monthly' %}hidden{% endif %}>
+                <label for="month">Month</label>
+                <select name="month" id="month" class="form-control" title="Select month">
+                    <option value="1" {% if month == 1 %}selected{% endif %}>January</option>
+                    <option value="2" {% if month == 2 %}selected{% endif %}>February</option>
+                    <option value="3" {% if month == 3 %}selected{% endif %}>March</option>
+                    <option value="4" {% if month == 4 %}selected{% endif %}>April</option>
+                    <option value="5" {% if month == 5 %}selected{% endif %}>May</option>
+                    <option value="6" {% if month == 6 %}selected{% endif %}>June</option>
+                    <option value="7" {% if month == 7 %}selected{% endif %}>July</option>
+                    <option value="8" {% if month == 8 %}selected{% endif %}>August</option>
+                    <option value="9" {% if month == 9 %}selected{% endif %}>September</option>
+                    <option value="10" {% if month == 10 %}selected{% endif %}>October</option>
+                    <option value="11" {% if month == 11 %}selected{% endif %}>November</option>
+                    <option value="12" {% if month == 12 %}selected{% endif %}>December</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="submit-btn" class="visually-hidden">Submit</label>
+                <button id="submit-btn" type="submit" class="btn btn-primary" aria-label="Generate Report">Generate Report</button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Report Summary -->
+    <div class="report-card">
+        <h3>Fee Collection Summary</h3>        <div class="report-summary">
+            <div class="summary-item paid" role="region" aria-label="Paid Fees Summary">
+                <h3>Paid Fees</h3>
+                <p aria-label="Paid amount: ${{ report_data.get('paid_amount', 0)|round(2) }}">${{ report_data.get('paid_amount', 0)|round(2) }}</p>
+                <span aria-label="{{ report_data.get('paid_count', 0) }} payments">{{ report_data.get('paid_count', 0) }} payments</span>
+            </div>
+            <div class="summary-item pending" role="region" aria-label="Pending Fees Summary">
+                <h3>Pending Fees</h3>
+                <p aria-label="Pending amount: ${{ report_data.get('pending_amount', 0)|round(2) }}">${{ report_data.get('pending_amount', 0)|round(2) }}</p>
+                <span aria-label="{{ report_data.get('pending_count', 0) }} payments">{{ report_data.get('pending_count', 0) }} payments</span>
+            </div>
+            <div class="summary-item overdue" role="region" aria-label="Overdue Fees Summary">
+                <h3>Overdue Fees</h3>
+                <p aria-label="Overdue amount: ${{ report_data.get('overdue_amount', 0)|round(2) }}">${{ report_data.get('overdue_amount', 0)|round(2) }}</p>
+                <span aria-label="{{ report_data.get('overdue_count', 0) }} payments">{{ report_data.get('overdue_count', 0) }} payments</span>
+            </div>
+            <div class="summary-item" role="region" aria-label="Total Expected Fees Summary">
+                <h3>Total Expected</h3>
+                <p aria-label="Total expected amount: ${{ (report_data.get('paid_amount', 0) + report_data.get('pending_amount', 0) + report_data.get('overdue_amount', 0))|round(2) }}">${{ (report_data.get('paid_amount', 0) + report_data.get('pending_amount', 0) + report_data.get('overdue_amount', 0))|round(2) }}</p>
+                <span aria-label="{{ report_data.get('paid_count', 0) + report_data.get('pending_count', 0) + report_data.get('overdue_count', 0) }} payments">{{ report_data.get('paid_count', 0) + report_data.get('pending_count', 0) + report_data.get('overdue_count', 0) }} payments</span>
+            </div>
+        </div>
+          <!-- Chart -->
+        <div class="chart-container">
+            <canvas id="feeReportChart" aria-label="Fee Payment Chart" role="img" title="Visual representation of fee payment statistics"></canvas>
+        </div>
+    </div>
+    
+    <!-- Fee Details -->
+    <div class="report-card">
+        <h3>Fee Payment Details</h3>
+        {% if report_data.get('fees', []) %}
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Amount</th>
+                    <th>Due Date</th>
+                    <th>Paid Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fee in report_data.get('fees', []) %}
+                <tr>
+                    <td>{{ fee.student_name }}</td>
+                    <td>${{ fee.amount|round(2) }}</td>
+                    <td>{{ fee.due_date }}</td>
+                    <td>{{ fee.paid_date or '-' }}</td>
+                    <td>
+                        {% if fee.status == 'Paid' %}
+                        <span class="badge bg-success">Paid</span>
+                        {% elif fee.is_overdue %}
+                        <span class="badge bg-danger">Overdue</span>
+                        {% else %}
+                        <span class="badge bg-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+          <div class="export-options">
+            <a href="{{ url_for('fee.export_fees', format='csv', period=period, year=year, month=month) }}" class="btn btn-secondary" role="button" aria-label="Export as CSV">
+                <i class="fas fa-file-csv" aria-hidden="true"></i> Export CSV
+            </a>
+            <a href="{{ url_for('fee.export_fees', format='pdf', period=period, year=year, month=month) }}" class="btn btn-secondary" role="button" aria-label="Export as PDF">
+                <i class="fas fa-file-pdf" aria-hidden="true"></i> Export PDF
+            </a>
+        </div>
+        {% else %}
+        <p>No fee data available for the selected period.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Toggle month selector based on period
+    document.getElementById('period').addEventListener('change', function() {
+        var monthGroup = document.getElementById('month-group');
+        if (this.value === 'monthly') {
+            monthGroup.hidden = false;
+        } else {
+            monthGroup.hidden = true;
+        }
+    });
+    
+    // Initialize chart
+    document.addEventListener('DOMContentLoaded', function() {
+        var ctx = document.getElementById('feeReportChart').getContext('2d');
+        var paidAmount = parseFloat('{{ report_data.get("paid_amount", 0)|round(2) }}');
+        var pendingAmount = parseFloat('{{ report_data.get("pending_amount", 0)|round(2) }}');
+        var overdueAmount = parseFloat('{{ report_data.get("overdue_amount", 0)|round(2) }}');
+        
+        var chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Paid', 'Pending', 'Overdue'],
+                datasets: [{
+                    label: 'Fee Amounts ($)',
+                    data: [paidAmount, pendingAmount, overdueAmount],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.7)',
+                        'rgba(255, 193, 7, 0.7)',
+                        'rgba(220, 53, 69, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(220, 53, 69, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

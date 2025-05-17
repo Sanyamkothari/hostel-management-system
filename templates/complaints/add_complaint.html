@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Complaint - Hostel Management{% endblock %}
+{% block page_title %}Add New Maintenance Request{% endblock %}
+
+{% block content %}
+<div class="actions-bar">
+    <a href="{{ url_for('complaints.view_complaints') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Complaints</a>
+</div>
+
+<div class="form-container">
+    <form method="POST" action="{{ url_for('complaints.add_complaint') }}">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Maintenance Request Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="room_id" class="form-label">Room* (Leave empty for common areas)</label>
+                        <select id="room_id" name="room_id" class="form-select">
+                            <option value="">-- Common Area / General --</option>
+                            {% for room in rooms %}
+                            <option value="{{ room.id }}">{{ room.room_number }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="reported_by_id" class="form-label">Reported By (Student)</label>
+                        <select id="reported_by_id" name="reported_by_id" class="form-select">
+                            <option value="">-- Select Student (Optional) --</option>
+                            {% for student in students %}
+                            <option value="{{ student.id }}">{{ student.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-12">
+                        <label for="description" class="form-label">Description*</label>
+                        <textarea id="description" name="description" class="form-control" rows="4" required></textarea>
+                    </div>
+                </div>
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="priority" class="form-label">Priority*</label>
+                        <select id="priority" name="priority" class="form-select" required>
+                            {% for priority in complaint_priorities %}
+                            <option value="{{ priority }}" {% if priority == 'Medium' %}selected{% endif %}>{{ priority }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Submit</button>
+                <a href="{{ url_for('complaints.view_complaints') }}" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

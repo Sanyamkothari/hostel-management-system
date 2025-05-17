@@ -1,0 +1,219 @@
+{% extends "layout.html" %}
+
+{% block title %}Students - Hostel Management{% endblock %}
+
+{% block page_title %}Students Management{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student-cards.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Search and Filter Bar -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="{{ url_for('student.view_students') }}" method="get" class="row g-3">
+                <div class="col-md-3">
+                    <input type="text" class="form-control" name="name" placeholder="Search by name..." value="{{ search_params.name }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" name="course" placeholder="Search by course..." value="{{ search_params.course }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" name="room_number" placeholder="Search by room..." value="{{ search_params.room_number }}">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="filter_course">
+                        <option value="">All Courses</option>
+                        {% for course in courses %}
+                        <option value="{{ course }}" {% if search_params.filter_course == course %}selected{% endif %}>{{ course }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-12 d-flex justify-content-between">
+                    <div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <a href="{{ url_for('student.view_students') }}" class="btn btn-secondary">
+                            <i class="fas fa-sync"></i> Reset
+                        </a>
+                    </div>
+                    <div class="view-toggle">
+                        <a href="{{ url_for('student.view_students', view='card', **search_params) }}" class="btn btn-outline-primary {% if view_mode == 'card' %}active{% endif %}">
+                            <i class="fas fa-th"></i> Card View
+                        </a>
+                        <a href="{{ url_for('student.view_students', view='list', **search_params) }}" class="btn btn-outline-primary {% if view_mode == 'list' %}active{% endif %}">
+                            <i class="fas fa-list"></i> List View
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="action-bar mb-4">
+        <a href="{{ url_for('student.add_student') }}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Add New Student
+        </a>
+        <a href="#" class="btn btn-info" id="export-btn">
+            <i class="fas fa-file-export"></i> Export Data
+        </a>
+        <a href="#" class="btn btn-secondary" id="print-btn">
+            <i class="fas fa-print"></i> Print List
+        </a>
+    </div>
+
+    {% if students %}
+        {% if view_mode == 'card' %}
+        <!-- Card View -->
+        <div class="row student-cards">
+            {% for student in students %}
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card student-card h-100">
+                    <div class="student-card-header">
+                        <div class="profile-img">
+                            {% if student.profile_photo %}
+                            <img src="{{ url_for('static', filename=student.profile_photo) }}" alt="{{ student.name }}">
+                            {% else %}
+                            <div class="profile-placeholder">
+                                {{ student.name[:1].upper() }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ student.name }}</h5>
+                        <p class="student-id">ID: {{ student.student_id_number }}</p>
+                        <div class="student-info">
+                            <p><i class="fas fa-graduation-cap"></i> {{ student.course }}</p>
+                            <p><i class="fas fa-phone"></i> {{ student.contact }}</p>
+                            <p><i class="fas fa-envelope"></i> {{ student.email }}</p>
+                            <p><i class="fas fa-home"></i> Room: {{ student.room_number or 'Not Assigned' }}
+                                {% if student.room_number %}
+                                <span class="badge bg-success">Assigned</span>
+                                {% else %}
+                                <span class="badge bg-warning">Unassigned</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('student.view_student', student_id=student.id) }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        <a href="{{ url_for('student.edit_student', student_id=student.id) }}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <button type="button" class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ student.id }}" data-name="{{ student.name }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- List View -->
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>ID Number</th>
+                                <th>Course</th>
+                                <th>Contact</th>
+                                <th>Email</th>
+                                <th>Room</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ student.name }}</td>
+                                <td>{{ student.student_id_number }}</td>
+                                <td>{{ student.course }}</td>
+                                <td>{{ student.contact }}</td>
+                                <td>{{ student.email }}</td>
+                                <td>{{ student.room_number or 'Not Assigned' }}</td>
+                                <td>
+                                    <a href="{{ url_for('student.view_student', student_id=student.id) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('student.edit_student', student_id=student.id) }}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ student.id }}" data-name="{{ student.name }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No students found. <a href="{{ url_for('student.add_student') }}">Add a new student</a>.
+        </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <span id="student-name"></span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="delete-form" action="" method="post">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set up delete modal
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const studentId = this.getAttribute('data-id');
+                const studentName = this.getAttribute('data-name');
+                document.getElementById('student-name').textContent = studentName;
+                document.getElementById('delete-form').action = "{{ url_for('student.delete_student', student_id=0) }}".replace('0', studentId);
+            });
+        });
+
+        // Print functionality
+        document.getElementById('print-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.print();
+        });
+
+        // Export functionality
+        document.getElementById('export-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            // Add export functionality here
+            alert('Export functionality will be implemented here');
+        });
+    });
+</script>
+{% endblock %}

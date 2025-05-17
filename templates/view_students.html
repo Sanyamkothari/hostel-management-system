@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+{% block title %}View Students - Hostel Management{% endblock %}
+{% block page_title %}Students List{% endblock %}
+
+{% block content %}
+<div class="actions-bar">
+    <a href="{{ url_for('student.add_student') }}" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add New Student</a>
+</div>
+
+<div class="search-filter-form mb-3 card p-3">
+    <form method="GET" action="{{ url_for('student.view_students') }}" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label for="name" class="form-label">Search Name:</label>
+            <input type="text" id="name" name="name" class="form-control form-control-sm" value="{{ search_params.name if search_params else '' }}">
+        </div>
+        <div class="col-md-3">
+            <label for="course" class="form-label">Search Course:</label>
+            <input type="text" id="course" name="course" class="form-control form-control-sm" value="{{ search_params.course if search_params else '' }}">
+        </div>
+        <div class="col-md-2">
+            <label for="room_number" class="form-label">Search Room:</label>
+            <input type="text" id="room_number" name="room_number" class="form-control form-control-sm" value="{{ search_params.room_number if search_params else '' }}">
+        </div>
+        <div class="col-md-3">
+            <label for="filter_course" class="form-label">Filter by Course:</label>
+            <select id="filter_course" name="filter_course" class="form-select form-select-sm">
+                <option value="">All Courses</option>
+                {% for course_obj in courses %}
+                <option value="{{ course_obj.course }}" {% if search_params and search_params.filter_course == course_obj.course %}selected{% endif %}>{{ course_obj.course }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-1 d-grid">
+            <button type="submit" class="btn btn-info btn-sm" title="Search"><i class="fas fa-search"></i> <span class="visually-hidden">Search</span></button>        </div>
+        <div class="col-md-auto d-grid">
+            <a href="{{ url_for('student.view_students') }}" class="btn btn-secondary btn-sm" title="Clear Filters"><i class="fas fa-times"></i> <span class="visually-hidden">Clear Filters</span></a>
+        </div>
+    </form>
+</div>
+
+<div class="table-responsive">
+    <table class="data-table">        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Student ID</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th>Course</th>
+                <th>Room</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>                <td>{{ student.id }}</td>
+                <td>
+                    <a href="{{ url_for('student.view_student_detail', student_id=student.id) }}">{{ student.name }}</a>
+                </td>
+                <td>{{ student.student_id_number if student.student_id_number else 'N/A' }}</td>
+                <td>{{ student.contact if student.contact else 'N/A' }}</td>
+                <td>{{ student.email if student.email else 'N/A' }}</td>
+                <td>{{ student.course if student.course else 'N/A' }}</td>
+                <td>{{ student.room_number if student.room_number else 'Not Assigned' }}</td>
+                <td class="table-actions">
+                    <a href="{{ url_for('student.view_student_detail', student_id=student.id) }}" class="btn-action" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="{{ url_for('student.edit_student', student_id=student.id) }}" class="btn-action btn-edit" title="Edit"><i class="fas fa-edit"></i></a>
+                    <form method="POST" action="{{ url_for('student.delete_student', student_id=student.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete {{ student.name }}? This will also delete their fee records.');">
+                        <button type="submit" class="btn-action btn-delete" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center">No students found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

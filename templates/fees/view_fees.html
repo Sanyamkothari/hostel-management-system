@@ -1,0 +1,149 @@
+{% extends "layout.html" %}
+
+{% block title %}Fees Management{% endblock %}
+
+{% block page_title %}Fees Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Fees Overview</h5>
+                        <div>
+                            <a href="{{ url_for('fee.view_fees_calendar') }}" class="btn btn-info">
+                                <i class="fas fa-calendar"></i> Calendar View
+                            </a>
+                            <a href="{{ url_for('fee.add_fee') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Fee
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <form method="GET" class="mb-4">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="filter_student">Student</label>
+                                    <input type="text" class="form-control" id="filter_student" name="filter_student" 
+                                           value="{{ request.args.get('filter_student', '') }}" placeholder="Search by name">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="filter_room">Room</label>
+                                    <input type="text" class="form-control" id="filter_room" name="filter_room" 
+                                           value="{{ request.args.get('filter_room', '') }}" placeholder="Room number">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="filter_type">Fee Type</label>
+                                    <select class="form-control" id="filter_type" name="filter_type">
+                                        <option value="">All Types</option>
+                                        {% for type in fee_types %}
+                                        <option value="{{ type }}" {% if request.args.get('filter_type') == type %}selected{% endif %}>
+                                            {{ type }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="filter_status">Status</label>
+                                    <select class="form-control" id="filter_status" name="filter_status">
+                                        <option value="">All Status</option>
+                                        {% for status in fee_statuses %}
+                                        <option value="{{ status }}" {% if request.args.get('filter_status') == status %}selected{% endif %}>
+                                            {{ status }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary btn-block">Filter</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Fees Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Room</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for fee in fees %}
+                                <tr>
+                                    <td>{{ fee.student_name }}</td>
+                                    <td>{{ fee.room_number }}</td>
+                                    <td>{{ fee.fee_type }}</td>
+                                    <td>₹{{ fee.amount }}</td>
+                                    <td>
+                                        {% if fee.due_date %}
+                                            {% if fee.due_date.__class__.__name__ == 'str' %}
+                                                {{ fee.due_date }}
+                                            {% else %}
+                                                {{ fee.due_date.strftime('%Y-%m-%d') }}
+                                            {% endif %}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if fee.status == 'Paid' %}
+                                        <span class="badge badge-success">{{ fee.status }}</span>
+                                        {% elif fee.status == 'Pending' %}
+                                        <span class="badge badge-warning">{{ fee.status }}</span>
+                                        {% else %}
+                                        <span class="badge badge-danger">{{ fee.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            {# <a href="{{ url_for('fee.edit_fee', fee_id=fee.id) }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-edit"></i>
+                                            </a> #}
+                                            {% set delete_url = url_for('fee.delete_fee', fee_id=fee.id) %}
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete('{{ delete_url }}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDelete(url) {
+    if (confirm('Are you sure you want to delete this fee record?')) {
+        window.location.href = url;
+    }
+}
+</script>
+{% endblock %}

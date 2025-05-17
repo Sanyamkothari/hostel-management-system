@@ -1,0 +1,95 @@
+\
+{% extends "layout.html" %}
+
+{% block title %}Fee Payments Report - Hostel Management{% endblock %}
+{% block page_title %}Fee Payments Report{% endblock %}
+
+{% block content %}
+<h2>Fee Payments Report</h2>
+<p class="lead">Detailed view of fee payment statuses and history.</p>
+
+<!-- Filters -->
+<form method="GET" action="{{ url_for('fee.fee_reports') }}" class="row g-3 align-items-end">
+    <div class="col-md-3">
+        <label for="filter_student_name" class="form-label">Student Name</label>
+        <input type="text" class="form-control" id="filter_student_name" name="filter_student_name" value="{{ request.args.get('filter_student_name', '') }}">
+    </div>
+    <div class="col-md-3">
+        <label for="start_date" class="form-label">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" class="form-control form-control-sm" value="{{ request.args.get('start_date', '') }}">
+    </div>
+    <div class="col-md-3">
+        <label for="end_date" class="form-label">End Date:</label>
+        <input type="date" id="end_date" name="end_date" class="form-control form-control-sm" value="{{ request.args.get('end_date', '') }}">
+    </div>
+    <div class="col-md-3">
+        <label for="student_id_filter" class="form-label">Student:</label>
+        <select id="student_id_filter" name="student_id_filter" class="form-select form-select-sm">
+            <option value="">All Students</option>
+            {% for student in students_for_filter %}
+            <option value="{{ student.id }}" {% if request.args.get('student_id_filter') == student.id|string %}selected{% endif %}>{{ student.name }} ({{ student.student_id_number }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="payment_status_filter" class="form-label">Status:</label>
+        <select id="payment_status_filter" name="payment_status_filter" class="form-select form-select-sm">
+            <option value="">All Statuses</option>
+            <option value="Paid" {% if request.args.get('payment_status_filter') == 'Paid' %}selected{% endif %}>Paid</option>
+            <option value="Pending" {% if request.args.get('payment_status_filter') == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Overdue" {% if request.args.get('payment_status_filter') == 'Overdue' %}selected{% endif %}>Overdue</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
+        <a href="{{ url_for('fee.fee_reports') }}" class="btn btn-secondary btn-sm" title="Clear Filters"><i class="fas fa-times"></i> Clear</a>
+    </div>
+</form>
+
+<div class="table-responsive mt-4">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Student Name</th>
+                <th>Student ID No.</th>
+                <th>Amount</th>
+                <th>Due Date</th>
+                <th>Payment Date</th>
+                <th>Status</th>
+                <th>Is Overdue?</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fee in fees %}
+            <tr class="{{ 'overdue-row' if fee.is_overdue and fee.status != 'Paid' else '' }}">
+                <td>{{ fee.id }}</td>
+                <td><a href="{{ url_for('student.edit_student', student_id=fee.student_id_fk) }}">{{ fee.student_name }}</a></td>
+                <td>{{ fee.student_id_number }}</td>
+                <td>₹{{ "%.2f"|format(fee.amount) }}</td>
+                <td>{{ fee.due_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ fee.payment_date.strftime('%Y-%m-%d') if fee.payment_date else 'N/A' }}</td>
+                <td>
+                    <span class="status-badge status-{{ fee.status.lower() }} {% if fee.is_overdue and fee.status != 'Paid' %}status-overdue{% endif %}">
+                        {{ fee.status }}
+                    </span>
+                </td>
+                <td>
+                    {% if fee.is_overdue and fee.status != 'Paid' %}
+                        <span class="badge bg-danger">Yes</span>
+                    {% elif fee.status == 'Paid' %}
+                        <span class="badge bg-secondary">N/A</span>
+                    {% else %}
+                        <span class="badge bg-success">No</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" class="text-center">No fee records found matching your criteria.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

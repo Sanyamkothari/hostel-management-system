@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+
+{% block title %}Edit Complaint - Hostel Management{% endblock %}
+{% block page_title %}Edit Complaint/Maintenance Request{% endblock %}
+
+{% block content %}
+<div class="card p-3">
+    <form method="POST" action="{{ url_for('complaints.edit_complaint', complaint_id=complaint_id) }}">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="reported_by_name" class="form-label">Reported By (Name):</label>
+                <input type="text" id="reported_by_name" name="reported_by_name" class="form-control" value="{{ complaint.reported_by_name if complaint else '' }}">
+                <small class="form-text text-muted">If not a registered student, enter name here.</small>
+            </div>
+            <div class="col-md-6">
+                <label for="student_id" class="form-label">Reported by (Registered Student):</label>
+                <select id="student_id" name="student_id" class="form-select">
+                    <option value="">-- Select Student (Optional) --</option>
+                    {% for student in students %}
+                    <option value="{{ student.id }}" {% if complaint and complaint.student_id == student.id %}selected{% endif %}>{{ student.name }} ({{ student.contact }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="room_id" class="form-label">Related Room (Optional):</label>
+                <select id="room_id" name="room_id" class="form-select">
+                    <option value="">-- Select Room (Optional) --</option>
+                    {% for room in rooms %}
+                    <option value="{{ room.id }}" {% if complaint and complaint.room_id == room.id %}selected{% endif %}>{{ room.room_number }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-6">
+                <label for="reported_date" class="form-label">Reported Date:</label>
+                <input type="date" id="reported_date" name="reported_date" class="form-control" value="{{ complaint.reported_date if complaint and complaint.reported_date else '' }}" readonly>
+                <small class="form-text text-muted">This field is read-only.</small>
+            </div>
+
+            <div class="col-md-12">
+                <label for="description" class="form-label">Description: <span class="text-danger">*</span></label>
+                <textarea id="description" name="description" class="form-control" rows="4" required>{{ complaint.description if complaint else '' }}</textarea>
+            </div>
+
+            <div class="col-md-4">
+                <label for="priority" class="form-label">Priority:</label>
+                <select id="priority" name="priority" class="form-select">
+                    {% for p_val in complaint_priorities %}
+                    <option value="{{ p_val }}" {% if complaint and complaint.priority == p_val %}selected{% endif %}>{{ p_val }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label for="status" class="form-label">Status:</label>
+                <select id="status" name="status" class="form-select">
+                     {% for s_val in complaint_statuses %}
+                    <option value="{{ s_val }}" {% if complaint and complaint.status == s_val %}selected{% endif %}>{{ s_val }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <label for="resolved_date" class="form-label">Resolved Date:</label>
+                <input type="date" id="resolved_date" name="resolved_date" class="form-control" value="{{ complaint.resolved_date if complaint and complaint.resolved_date else '' }}">
+            </div>
+
+            <div class="col-md-12">
+                <label for="resolution_notes" class="form-label">Resolution Notes:</label>
+                <textarea id="resolution_notes" name="resolution_notes" class="form-control" rows="3">{{ complaint.resolution_notes if complaint else '' }}</textarea>
+            </div>
+        </div>        <div class="mt-4">
+            <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Changes</button>
+            <a href="{{ url_for('complaints.view_complaints') }}" class="btn btn-secondary"><i class="fas fa-times-circle"></i> Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

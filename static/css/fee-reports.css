@@ -1,0 +1,90 @@
+.report-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.report-filters .form-group {
+    margin-bottom: 0;
+}
+
+.report-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.report-card {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+.report-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.summary-item {
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.summary-item.paid {
+    background-color: #d4edda;
+}
+
+.summary-item.pending {
+    background-color: #fff3cd;
+}
+
+.summary-item.overdue {
+    background-color: #f8d7da;
+}
+
+.summary-item h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+}
+
+.summary-item p {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.chart-container {
+    height: 300px;
+    margin-bottom: 20px;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.report-table th, 
+.report-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.report-table th {
+    background-color: #f8f9fa;
+}
+
+.export-options {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}

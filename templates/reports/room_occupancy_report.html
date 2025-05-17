@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+
+{% block title %}Room Occupancy Report - Hostel Management{% endblock %}
+{% block page_title %}Room Occupancy Report{% endblock %}
+
+{% block content %}
+<h2>Room Occupancy Report</h2>
+<p class="lead">Detailed view of room occupancy and student assignments.</p>
+
+<!-- Filters -->
+<form method="GET" action="{{ url_for('dashboard.room_occupancy_report') }}" class="row g-3 align-items-end">
+    <div class="col-md-3">
+        <label for="filter_room_number" class="form-label">Room Number</label>
+        <input type="text" class="form-control" id="filter_room_number" name="filter_room_number" value="{{ request.args.get('filter_room_number', '') }}">
+    </div>
+    <div class="col-md-3">
+        <label for="filter_status" class="form-label">Status</label>
+        <select id="filter_status" name="filter_status" class="form-select form-select-sm">
+            <option value="">All Statuses</option>
+            {% for status in room_statuses_for_filter %}
+            <option value="{{ status }}" {% if request.args.get('filter_status') == status %}selected{% endif %}>{{ status }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
+        <a href="{{ url_for('dashboard.room_occupancy_report') }}" class="btn btn-secondary btn-sm" title="Clear Filters"><i class="fas fa-times"></i> Clear</a>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Room Number</th>
+                <th>Capacity</th>
+                <th>Current Occupancy</th>
+                <th>Status</th>
+                <th>Occupying Students</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for room in rooms_data %}
+            <tr>
+                <td>{{ room.room_number }}</td>
+                <td>{{ room.capacity }}</td>
+                <td>{{ room.current_occupancy }}</td>
+                <td>
+                    <span class="status-badge status-{{ room.status.lower() }}">{{ room.status }}</span>
+                </td>                <td>
+                    <ul class="list-unstyled mb-0">
+                        {% for student in room.students %}
+                        <li><a href="{{ url_for('student.edit_student', student_id=student.id) }}">{{ student.name }}</a> ({{ student.student_id_number }})</li>
+                        {% else %}
+                        <li>No students assigned.</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">No rooms found matching your criteria.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

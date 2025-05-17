@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+
+{% block title %}View Complaints - Hostel Management{% endblock %}
+{% block page_title %}Complaints & Maintenance Requests{% endblock %}
+
+{% block content %}
+<div class="actions-bar">
+    <a href="{{ url_for('complaints.add_complaint') }}" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Add New Complaint</a>
+</div>
+
+<div class="search-filter-form mb-3 card p-3">
+    <form method="GET" action="{{ url_for('complaints.view_complaints') }}" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label for="filter_room_number" class="form-label">Room Number:</label>
+            <input type="text" id="filter_room_number" name="filter_room_number" class="form-control form-control-sm" value="{{ request.args.get('filter_room_number', '') }}">
+        </div>
+        <div class="col-md-3">
+            <label for="filter_status" class="form-label">Status:</label>
+            <select id="filter_status" name="filter_status" class="form-select form-select-sm">
+                <option value="">All Statuses</option>
+                {% for status in complaint_statuses %}
+                <option value="{{ status }}" {% if request.args.get('filter_status') == status %}selected{% endif %}>{{ status }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="filter_priority" class="form-label">Priority:</label>
+            <select id="filter_priority" name="filter_priority" class="form-select form-select-sm">
+                <option value="">All Priorities</option>
+                {% for priority in complaint_priorities %}
+                <option value="{{ priority }}" {% if request.args.get('filter_priority') == priority %}selected{% endif %}>{{ priority }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-info btn-sm me-2" title="Apply Filters"><i class="fas fa-filter"></i> Apply</button>
+            <a href="{{ url_for('complaints.view_complaints') }}" class="btn btn-secondary btn-sm" title="Clear Filters"><i class="fas fa-times"></i> Clear</a>
+        </div>
+    </form>
+</div>
+
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Reported Date</th>
+                <th>Reported By</th>
+                <th>Room No.</th>
+                <th>Description</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Resolution Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for complaint in complaints %}
+            <tr class="{% if complaint.priority == 'Critical' %}table-danger{% elif complaint.priority == 'High' %}table-warning{% endif %}">
+                <td>{{ complaint.id }}</td>
+                <td>{{ complaint.report_date }}</td>
+                <td>{{ complaint.reported_by or 'Not specified' }}</td>
+                <td>{{ complaint.room_number or 'Common Area' }}</td>
+                <td>{{ complaint.description }}</td>
+                <td>
+                    <span class="badge {% if complaint.priority == 'Critical' %}bg-danger{% elif complaint.priority == 'High' %}bg-warning text-dark{% elif complaint.priority == 'Medium' %}bg-info text-dark{% else %}bg-success{% endif %}">
+                        {{ complaint.priority }}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge {% if complaint.status == 'Pending' %}bg-secondary{% elif complaint.status == 'In Progress' %}bg-primary{% elif complaint.status == 'Resolved' %}bg-success{% else %}bg-dark{% endif %}">
+                        {{ complaint.status }}
+                    </span>
+                </td>
+                <td>{{ complaint.resolution_date or '-' }}</td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <a href="{{ url_for('complaints.edit_complaint', complaint_id=complaint.id) }}" class="btn btn-outline-primary" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <!-- Delete button with confirmation -->                        <button type="button" class="btn btn-outline-danger" 
+                                data-delete-url="{{ url_for('complaints.delete_complaint', complaint_id=complaint.id) }}"
+                                data-complaint-id="{{ complaint.id }}"
+                                onclick="confirmDelete(this.dataset.deleteUrl, 'complaint #' + this.dataset.complaintId)" 
+                                title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" class="text-center py-4">No maintenance requests found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <span id="deleteItemName"></span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(deleteUrl, itemName) {
+        document.getElementById('deleteForm').action = deleteUrl;
+        document.getElementById('deleteItemName').textContent = itemName;
+        new bootstrap.Modal(document.getElementById('deleteConfirmationModal')).show();
+    }
+</script>
+{% endblock %}

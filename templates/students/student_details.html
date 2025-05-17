@@ -1,0 +1,422 @@
+{% extends "layout.html" %}
+
+{% block title %}Student Profile - {{ student.name }} - Hostel Management{% endblock %}
+
+{% block page_title %}Student Profile{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student-profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Student Information Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card student-profile-card">
+                <div class="card-header profile-header">
+                    <div class="profile-img-container">
+                        {% if student.profile_photo %}
+                        <img src="{{ url_for('static', filename=student.profile_photo) }}" alt="{{ student.name }}" class="profile-img">
+                        {% else %}
+                        <div class="profile-placeholder">
+                            {{ student.name[:1].upper() }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <h4 class="text-center mt-3">{{ student.name }}</h4>
+                    <p class="text-center text-muted">Student ID: {{ student.student_id_number }}</p>
+                </div>
+                <div class="card-body">
+                    <div class="student-info-list">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Course</span>
+                            </div>
+                            <div class="info-value">{{ student.course }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-phone"></i>
+                                <span>Contact</span>
+                            </div>
+                            <div class="info-value">{{ student.contact }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-envelope"></i>
+                                <span>Email</span>
+                            </div>
+                            <div class="info-value">{{ student.email }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-home"></i>
+                                <span>Room</span>
+                            </div>
+                            <div class="info-value">
+                                {% if student.room_number %}
+                                <span class="badge bg-success">Room {{ student.room_number }}</span>
+                                {% else %}
+                                <span class="badge bg-warning">Not Assigned</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar-check"></i>
+                                <span>Admission Date</span>
+                            </div>
+                            <div class="info-value">{{ student.admission_date }}</div>
+                        </div>
+                        {% if student.expected_checkout_date %}
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar-times"></i>
+                                <span>Expected Checkout</span>
+                            </div>
+                            <div class="info-value">{{ student.expected_checkout_date }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a href="{{ url_for('student.edit_student', student_id=student.id) }}" class="btn btn-warning flex-grow-1">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                        <button type="button" class="btn btn-danger flex-grow-1" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Student Details Tabs -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" id="studentTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab" aria-controls="details" aria-selected="true">
+                                <i class="fas fa-info-circle"></i> Details
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="fees-tab" data-bs-toggle="tab" data-bs-target="#fees" type="button" role="tab" aria-controls="fees" aria-selected="false">
+                                <i class="fas fa-money-bill-alt"></i> Fees
+                                {% if fees_summary.overdue > 0 %}
+                                <span class="badge rounded-pill bg-danger ms-1">{{ fees_summary.overdue }}</span>
+                                {% endif %}
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">
+                                <i class="fas fa-history"></i> History
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes" type="button" role="tab" aria-controls="notes" aria-selected="false">
+                                <i class="fas fa-sticky-note"></i> Notes
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="studentTabsContent">
+                        <!-- Personal Details Tab -->
+                        <div class="tab-pane fade show active" id="details" role="tabpanel" aria-labelledby="details-tab">
+                            {% if details %}
+                            <h5 class="border-bottom pb-2 mb-3">Personal Information</h5>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h6 class="text-muted">Address</h6>
+                                    <p>{{ details.home_address }}</p>
+                                    <p>{{ details.city }}, {{ details.state }} {{ details.zip_code }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-muted">Parent/Guardian</h6>
+                                    <p><strong>{{ details.parent_name }}</strong></p>
+                                    <p>Contact: {{ details.parent_contact }}</p>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h6 class="text-muted">Emergency Contact</h6>
+                                    <p><strong>{{ details.emergency_contact_name }}</strong></p>
+                                    <p>Phone: {{ details.emergency_contact_phone }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-muted">Additional Notes</h6>
+                                    <p>{{ details.additional_notes or 'No additional notes.' }}</p>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> No additional details available.
+                                <a href="{{ url_for('student.edit_student', student_id=student.id) }}">Add details</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Fees Tab -->
+                        <div class="tab-pane fade" id="fees" role="tabpanel" aria-labelledby="fees-tab">
+                            <div class="fees-summary mb-4">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="fee-stat-card">
+                                            <div class="fee-stat-icon">
+                                                <i class="fas fa-file-invoice-dollar"></i>                                            </div>
+                                            <div class="fee-stat-info">
+                                                <h6>Total Fees</h6>
+                                                <h3>{{ format_currency(fees_summary.total) }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="fee-stat-card">
+                                            <div class="fee-stat-icon text-success">
+                                                <i class="fas fa-check-circle"></i>
+                                            </div>
+                                            <div class="fee-stat-info">
+                                                <h6>Paid</h6>
+                                                <h3>{{ format_currency(fees_summary.paid) }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="fee-stat-card">
+                                            <div class="fee-stat-icon text-primary">
+                                                <i class="fas fa-hourglass-half"></i>
+                                            </div>
+                                            <div class="fee-stat-info">
+                                                <h6>Pending</h6>
+                                                <h3>{{ format_currency(fees_summary.pending) }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="fee-stat-card">
+                                            <div class="fee-stat-icon text-danger">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                            </div>
+                                            <div class="fee-stat-info">
+                                                <h6>Overdue</h6>
+                                                <h3>{{ format_currency(fees_summary.overdue) }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-3">
+                                <h5>Fee Transactions</h5>
+                                <a href="{{ url_for('fee.add_fee', student_id=student.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-plus"></i> Add Fee
+                                </a>
+                            </div>
+                            
+                            {% if fees %}
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Due Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>                                        {% for fee in fees %}
+                                        <tr class="{% if fee.status == 'Pending' and fee.due_date < current_date %}table-danger{% elif fee.status == 'Pending' %}table-warning{% elif fee.status == 'Paid' %}table-success{% endif %}">
+                                            <td>{{ fee.created_date or '-' }}</td>
+                                            <td>{{ fee.due_date_formatted or '-' }}</td>
+                                            <td>{{ format_currency(fee.amount) }}</td>
+                                            <td>
+                                                {% if fee.is_overdue %}
+                                                <span class="badge bg-danger">Overdue</span>
+                                                {% else %}
+                                                <span class="badge {% if fee.status == 'Pending' %}bg-warning{% elif fee.status == 'Paid' %}bg-success{% endif %}">
+                                                    {{ fee.status }}
+                                                </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if fee.status == 'Pending' %}
+                                                <form action="{{ url_for('fee.mark_fee_paid', fee_id=fee.id) }}" method="post" class="d-inline">
+                                                    <input type="hidden" name="redirect_url" value="{{ url_for('student.view_student', student_id=student.id) }}">
+                                                    <button type="submit" class="btn btn-sm btn-success">
+                                                        <i class="fas fa-check"></i> Mark Paid
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                                <a href="{{ url_for('fee.edit_fee', fee_id=fee.id) }}" class="btn btn-sm btn-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                No fee records found for this student.
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- History Tab -->
+                        <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-success">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h5 class="timeline-title">Admitted to Hostel</h5>
+                                        <p class="timeline-date">{{ student.admission_date }}</p>
+                                    </div>
+                                </div>
+                                
+                                {% if room_history %}
+                                {% for entry in room_history %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-primary">
+                                        <i class="fas fa-home"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h5 class="timeline-title">Room Assignment</h5>
+                                        <p>Assigned to Room {{ entry.room_number }}</p>
+                                        <p class="timeline-date">{{ entry.assignment_date }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                
+                                {% if fee_history %}
+                                {% for entry in fee_history %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker {% if entry.status == 'Paid' %}bg-success{% else %}bg-warning{% endif %}">
+                                        <i class="fas fa-money-bill-alt"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h5 class="timeline-title">Fee {{ entry.status }}</h5>
+                                        <p>${{ entry.amount }} - {{ entry.description or 'Hostel Fee' }}</p>
+                                        <p class="timeline-date">{{ entry.transaction_date }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                
+                                {% if student.expected_checkout_date and student.expected_checkout_date > current_date %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-info">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h5 class="timeline-title">Expected Checkout</h5>
+                                        <p class="timeline-date">{{ student.expected_checkout_date }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Notes Tab -->
+                        <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="notes-tab">
+                            <div class="notes-container">
+                                {% if notes %}
+                                {% for note in notes %}
+                                <div class="note-card">
+                                    <div class="note-header">
+                                        <h6>{{ note.title }}</h6>
+                                        <span class="note-date">{{ note.created_date }}</span>
+                                    </div>
+                                    <div class="note-body">
+                                        <p>{{ note.content }}</p>
+                                    </div>
+                                    <div class="note-footer">
+                                        <button class="btn btn-sm btn-warning edit-note" data-id="{{ note.id }}">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-danger delete-note" data-id="{{ note.id }}">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% else %}
+                                <div class="alert alert-info">
+                                    No notes found for this student.
+                                </div>
+                                {% endif %}
+                                
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Add New Note</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="add-note-form">
+                                            <input type="hidden" name="student_id" value="{{ student.id }}">
+                                            <div class="mb-3">
+                                                <label for="note-title" class="form-label">Title</label>
+                                                <input type="text" class="form-control" id="note-title" name="title" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="note-content" class="form-label">Content</label>
+                                                <textarea class="form-control" id="note-content" name="content" rows="3" required></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save"></i> Save Note
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Student Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>{{ student.name }}</strong>?</p>
+                <p class="text-danger">This action cannot be undone. All related data including fees and room assignments will be deleted.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{{ url_for('student.delete_student', student_id=student.id) }}" method="post">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Note form handling would go here
+        document.getElementById('add-note-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // This would be implemented with an AJAX call to save the note
+            alert('Note saving functionality will be implemented here');
+        });
+    });
+</script>
+{% endblock %}

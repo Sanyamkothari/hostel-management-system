@@ -1,0 +1,126 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Student - Hostel Management{% endblock %}
+
+{% block page_title %}Add New Student{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <form method="post" action="{{ url_for('student.add_student') }}" class="styled-form">
+        <div class="form-section">
+            <h3>Basic Information</h3>
+            
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" name="name" id="name" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="student_id_number">Student ID Number</label>
+                <input type="text" name="student_id_number" id="student_id_number" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="contact">Contact Number</label>
+                <input type="text" name="contact" id="contact" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" name="email" id="email" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="course">Course/Program</label>
+                <input type="text" name="course" id="course" class="form-control" required>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h3>Room Assignment</h3>
+            
+            <div class="form-group">
+                <label for="room_id">Assign Room</label>
+                <select name="room_id" id="room_id" class="form-control">
+                    <option value="">-- No Room Assigned --</option>
+                    {% for room in rooms %}
+                        {% if room.status != 'Full' and room.status != 'Maintenance' %}
+                        <option value="{{ room.id }}">
+                            Room {{ room.room_number }} 
+                            ({{ room.current_occupancy }}/{{ room.capacity }} occupied)
+                        </option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="admission_date">Admission Date</label>
+                <input type="date" name="admission_date" id="admission_date" class="form-control" 
+                       value="{{ current_date.isoformat() }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="expected_checkout_date">Expected Checkout Date</label>
+                <input type="date" name="expected_checkout_date" id="expected_checkout_date" class="form-control">
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h3>Additional Details</h3>
+            
+            <div class="form-group">
+                <label for="home_address">Home Address</label>
+                <input type="text" name="home_address" id="home_address" class="form-control">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="city">City</label>
+                    <input type="text" name="city" id="city" class="form-control">
+                </div>
+                
+                <div class="form-group col-md-4">
+                    <label for="state">State/Province</label>
+                    <input type="text" name="state" id="state" class="form-control">
+                </div>
+                
+                <div class="form-group col-md-4">
+                    <label for="zip_code">ZIP/Postal Code</label>
+                    <input type="text" name="zip_code" id="zip_code" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="parent_name">Parent/Guardian Name</label>
+                <input type="text" name="parent_name" id="parent_name" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="parent_contact">Parent/Guardian Contact</label>
+                <input type="text" name="parent_contact" id="parent_contact" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="emergency_contact_name">Emergency Contact Name</label>
+                <input type="text" name="emergency_contact_name" id="emergency_contact_name" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="emergency_contact_phone">Emergency Contact Phone</label>
+                <input type="text" name="emergency_contact_phone" id="emergency_contact_phone" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="additional_notes">Additional Notes</label>
+                <textarea name="additional_notes" id="additional_notes" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Student</button>
+            <a href="{{ url_for('student.view_students') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

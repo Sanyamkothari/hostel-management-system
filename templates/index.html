@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard - Hostel Management{% endblock %}
+
+{% block page_title %}Dashboard Overview{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard-charts.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Key Metrics Section -->
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <i class="fas fa-users stat-icon"></i>
+            <h3>Total Students</h3>
+            <p class="stat-value">{{ stats.students }}</p>
+            <div class="stat-progress" title="{{ stats.occupancy_percentage|round(1) }}% of capacity filled">
+                <div class="progress-bar" style="width: {{ stats.occupancy_percentage }}%"></div>
+            </div>
+            <a href="{{ url_for('student.view_students') }}" class="stat-link">Manage Students <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-door-open stat-icon"></i>
+            <h3>Total Rooms</h3>
+            <p class="stat-value">{{ stats.rooms }}</p>
+            <div class="capacity-indicator">
+                <span class="available">{{ stats.available_rooms }} Available</span>
+                <span class="full">{{ stats.occupied_rooms }} Full</span>
+                {% if stats.maintenance_rooms > 0 %}
+                <span class="maintenance">{{ stats.maintenance_rooms }} Maintenance</span>
+                {% endif %}
+            </div>
+            <a href="{{ url_for('room.view_rooms') }}" class="stat-link">Manage Rooms <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-bed stat-icon"></i>
+            <h3>Occupancy</h3>
+            <p class="stat-value">{{ stats.current_occupancy }}/{{ stats.total_capacity }}</p>
+            <div class="stat-progress" title="{{ stats.occupancy_percentage|round(1) }}% occupied">
+                <div class="progress-bar" style="width: {{ stats.occupancy_percentage }}%"></div>
+            </div>
+            <a href="{{ url_for('dashboard.room_occupancy_report') }}" class="stat-link">View Occupancy <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-file-invoice-dollar stat-icon"></i>
+            <h3>Pending Fees</h3>
+            <p class="stat-value">${{ stats.pending_fees_amount|round(2) }}</p>
+            <div class="fee-status">
+                <span class="pending">{{ stats.pending_fees }} Pending</span>
+                {% if stats.overdue_fees > 0 %}
+                <span class="overdue">{{ stats.overdue_fees }} Overdue</span>
+                {% endif %}
+            </div>
+            <a href="{{ url_for('fee.view_fees') }}" class="stat-link">Manage Fees <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+
+    <!-- Charts and Quick Actions Row -->
+    <div class="dashboard-row">
+        <!-- Room Occupancy Chart -->
+        <div class="dashboard-chart-container">
+            <div class="chart-card">
+                <h3>Room Occupancy</h3>
+                <canvas id="roomOccupancyChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Fee Status Chart -->
+        <div class="dashboard-chart-container">
+            <div class="chart-card">
+                <h3>Fee Collection Status</h3>
+                <canvas id="feeStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity and Quick Actions Row -->
+    <div class="dashboard-row">
+        <!-- Recent Activity -->
+        <div class="dashboard-section">
+            <div class="section-card">
+                <h3>Recent Activity</h3>
+                <div class="recent-activity">
+                    {% if recent_activity %}
+                        <ul class="activity-list">
+                            {% for activity in recent_activity %}
+                                <li class="activity-item {{ activity.type }}">
+                                    <span class="activity-icon">
+                                        {% if activity.type == 'student' %}
+                                            <i class="fas fa-user"></i>
+                                        {% elif activity.type == 'room' %}
+                                            <i class="fas fa-door-open"></i>
+                                        {% elif activity.type == 'fee' %}
+                                            <i class="fas fa-file-invoice-dollar"></i>
+                                        {% endif %}
+                                    </span>
+                                    <div class="activity-content">
+                                        <p>{{ activity.description }}</p>
+                                        <span class="activity-time">{{ activity.time }}</span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="no-activity">No recent activity to display</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="dashboard-section">
+            <div class="section-card">
+                <h3>Quick Actions</h3>
+                <div class="quick-actions">
+                    <h4><i class="fas fa-bolt"></i> Quick Actions</h4>
+                    <a href="{{ url_for('student.add_student') }}" class="action-btn student">
+                        <i class="fas fa-user-plus"></i> Add Student
+                    </a>
+                    <a href="{{ url_for('room.add_room') }}" class="action-btn room">
+                        <i class="fas fa-door-plus"></i> Add Room <!-- Assuming 'fa-door-plus' or similar exists -->
+                    </a>
+                    <a href="{{ url_for('fee.add_fee') }}" class="action-btn fee">
+                        <i class="fas fa-file-invoice-dollar"></i> Add Fee
+                    </a>
+                    <a href="{{ url_for('complaints.add_complaint') }}" class="action-btn complaint">
+                        <i class="fas fa-tools"></i> Log Complaint
+                    </a>
+                     <a href="{{ url_for('dashboard.room_occupancy_report') }}" class="action-btn report">
+                        <i class="fas fa-chart-bar"></i> Room Occupancy Report
+                    </a>
+                    <a href="{{ url_for('fee.fee_reports') }}" class="action-btn report">
+                        <i class="fas fa-chart-line"></i> Fee Payments Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Room Occupancy Chart
+    initOccupancyChart('roomOccupancyChart', {{ room_data|default([])|tojson }});
+    
+    // Initialize Fee Status Chart
+    initFeesChart('feeStatusChart', {
+        paid: {{ stats.paid_fees_amount|default(0) }},
+        pending: {{ stats.pending_fees_amount|default(0) }},
+        overdue: {{ stats.overdue_fees_amount|default(0) }}
+    });
+});
+</script>
+{% endblock %}

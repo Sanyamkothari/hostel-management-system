@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}View Fees - Hostel Management{% endblock %}
+{% block page_title %}Fee Records{% endblock %}
+
+{% block content %}
+<div class="actions-bar">
+    <a href="{{ url_for('fee.add_fee') }}" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Add Fee Record</a>
+</div>
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Student Name</th>
+                <th>Amount</th>
+                <th>Due Date</th>
+                <th>Paid Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fee in fees %}
+            <tr {% if fee.is_overdue %}class="overdue-row"{% endif %}>                <td>{{ fee.id }}</td>
+                <td><a href="{{ url_for('student.edit_student', student_id=fee.student_id) }}">{{ fee.student_name }}</a></td>
+                <td>₹{{ "%.2f"|format(fee.amount) }}</td> {# Assuming INR currency #}
+                <td>{{ fee.due_date if fee.due_date else 'N/A' }}</td>
+                <td>{{ fee.paid_date if fee.paid_date else 'N/A' }}</td>
+                <td>
+                    {% if fee.is_overdue and fee.status == 'Pending' %}
+                        <span class="status-badge status-overdue">Overdue</span>
+                    {% else %}
+                        <span class="status-badge status-{{ fee.status.lower() }}">{{ fee.status }}</span>
+                    {% endif %}
+                </td>                <td class="table-actions">
+                    {% if fee.status != 'Paid' %}
+                    <form method="POST" action="{{ url_for('fee.mark_fee_paid', fee_id=fee.id) }}" class="inline-form" onsubmit="return confirm('Mark this fee as paid?');">
+                        <button type="submit" class="btn-action btn-success" title="Mark as Paid"><i class="fas fa-check-circle"></i></button>
+                    </form>
+                    {% endif %}
+                    {# Add edit fee button here if needed in the future #}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center">No fee records found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}Hostel Management{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>    <div class="sidebar">
+        <h2><i class="fas fa-hotel"></i> Hostel Admin</h2>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('dashboard.index') }}" class="{{ 'active' if request.endpoint == 'dashboard.index' else '' }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li>
+                    <a href="#studentsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fas fa-users"></i> Students</a>
+                    <ul class="collapse list-unstyled" id="studentsSubmenu">
+                        <li><a href="{{ url_for('student.view_students') }}" class="{{ 'active' if request.endpoint == 'student.view_students' else '' }}">View Students</a></li>
+                        <li><a href="{{ url_for('student.add_student') }}" class="{{ 'active' if request.endpoint == 'student.add_student' else '' }}">Add Student</a></li>
+                    </ul>
+                </li>
+                 <li>
+                    <a href="#roomsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fas fa-door-open"></i> Rooms</a>
+                    <ul class="collapse list-unstyled" id="roomsSubmenu">
+                        <li><a href="{{ url_for('room.view_rooms') }}" class="{{ 'active' if request.endpoint == 'room.view_rooms' else '' }}">View Rooms</a></li>
+                        <li><a href="{{ url_for('room.add_room') }}" class="{{ 'active' if request.endpoint == 'room.add_room' else '' }}">Add Room</a></li>
+                    </ul>
+                </li>                <li>
+                    <a href="#feesSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fas fa-file-invoice-dollar"></i> Fees</a>                    <ul class="collapse list-unstyled" id="feesSubmenu">
+                         <li><a href="{{ url_for('fee.view_fees') }}" class="{{ 'active' if request.endpoint == 'fee.view_fees' else '' }}">View Fees</a></li>
+                         <li><a href="{{ url_for('fee.add_fee') }}" class="{{ 'active' if request.endpoint == 'fee.add_fee' else '' }}">Add Fee Record</a></li>
+                         <li><a href="{{ url_for('fee.add_batch_fees') }}" class="{{ 'active' if request.endpoint == 'fee.add_batch_fees' else '' }}">Batch Assign Fees</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#reportsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fas fa-chart-bar"></i> Reports</a>
+                    <ul class="collapse list-unstyled" id="reportsSubmenu">
+                        <li><a href="{{ url_for('dashboard.room_occupancy_report') }}" class="{{ 'active' if request.endpoint == 'dashboard.room_occupancy_report' else '' }}">Room Occupancy</a></li>
+                        <li><a href="{{ url_for('fee.fee_reports') }}" class="{{ 'active' if request.endpoint == 'fee.fee_reports' else '' }}">Fee Payments</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#complaintsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fas fa-tools"></i> Maintenance</a>
+                    <ul class="collapse list-unstyled" id="complaintsSubmenu">
+                        <li><a href="{{ url_for('complaints.view_complaints') }}" class="{{ 'active' if request.endpoint == 'complaints.view_complaints' else '' }}">View Requests</a></li>
+                        <li><a href="{{ url_for('complaints.add_complaint') }}" class="{{ 'active' if request.endpoint == 'complaints.add_complaint' else '' }}">Add Request</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="content">
+        <header class="top-header">
+            <h1>{% block page_title %}{% endblock %}</h1>
+            </header>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer>
+            <p>&copy; {{ current_date.year }} Hostel Management System. For Local Use.</p>
+        </footer>
+    </div>    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function(){
+            // Enable Bootstrap tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Keep dropdowns open if a sub-item is active
+            var activeSubLink = document.querySelector('.sidebar ul ul .active');
+            if(activeSubLink){
+                var parentCollapse = activeSubLink.closest('.collapse');
+                if(parentCollapse){
+                    new bootstrap.Collapse(parentCollapse, {
+                        toggle: true
+                    });
+                }
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

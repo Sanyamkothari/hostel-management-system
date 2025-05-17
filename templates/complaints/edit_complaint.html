@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block title %}Edit Complaint - Hostel Management{% endblock %}
+{% block page_title %}Edit Maintenance Request{% endblock %}
+
+{% block content %}
+<div class="actions-bar">
+    <a href="{{ url_for('complaints.view_complaints') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Complaints</a>
+</div>
+
+<div class="form-container">
+    <form method="POST" action="{{ url_for('complaints.edit_complaint', complaint_id=complaint.id) }}">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Maintenance Request Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="room_id" class="form-label">Room* (Leave empty for common areas)</label>
+                        <select id="room_id" name="room_id" class="form-select">
+                            <option value="">-- Common Area / General --</option>
+                            {% for room in rooms %}
+                            <option value="{{ room.id }}" {% if complaint.room_id == room.id %}selected{% endif %}>{{ room.room_number }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="reported_by_id" class="form-label">Reported By (Student)</label>
+                        <select id="reported_by_id" name="reported_by_id" class="form-select">
+                            <option value="">-- Select Student (Optional) --</option>
+                            {% for student in students %}
+                            <option value="{{ student.id }}" {% if complaint.reported_by_id == student.id %}selected{% endif %}>{{ student.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-12">
+                        <label for="description" class="form-label">Description*</label>
+                        <textarea id="description" name="description" class="form-control" rows="4" required>{{ complaint.description }}</textarea>
+                    </div>
+                </div>
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="priority" class="form-label">Priority*</label>
+                        <select id="priority" name="priority" class="form-select" required>
+                            {% for priority in complaint_priorities %}
+                            <option value="{{ priority }}" {% if complaint.priority == priority %}selected{% endif %}>{{ priority }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="status" class="form-label">Status*</label>
+                        <select id="status" name="status" class="form-select" required>
+                            {% for status in complaint_statuses %}
+                            <option value="{{ status }}" {% if complaint.status == status %}selected{% endif %}>{{ status }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-12">
+                        <label for="resolution_notes" class="form-label">Resolution Notes</label>
+                        <textarea id="resolution_notes" name="resolution_notes" class="form-control" rows="3">{{ complaint.resolution_notes }}</textarea>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="resolution_date" class="form-label">Resolution Date</label>
+                        <input type="date" id="resolution_date" name="resolution_date" class="form-control" value="{{ complaint.resolution_date }}">
+                        <small class="form-text text-muted">Leave empty if not resolved yet. Will be set automatically when status changes to Resolved.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update</button>
+                <a href="{{ url_for('complaints.view_complaints') }}" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
