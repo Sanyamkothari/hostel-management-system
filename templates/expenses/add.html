@@ -1,0 +1,183 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Expense - Hostel Management{% endblock %}
+
+{% block page_title %}
+    Add New Expense
+    {% if current_hostel_name and g.user.role == 'manager' %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <!-- Hostel Selection Form (Only for Owners) -->
+    {% if g.user.role == 'owner' and not selected_hostel_id %}
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle"></i> Please select a hostel first to add expenses.
+    </div>
+    <form method="get" action="{{ url_for('expense.add_expense') }}" class="styled-form mb-4">
+        <div class="form-group">
+            <label for="hostel_id">Select Hostel <span class="text-danger">*</span></label>
+            <select name="hostel_id" id="hostel_id" class="form-control" required>
+                <option value="">Choose a hostel...</option>
+                {% for hostel in hostels_list %}
+                <option value="{{ hostel.id }}">{{ hostel.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Continue</button>
+        </div>
+    </form>
+    {% else %}
+
+    <!-- Main Expense Form -->
+    <form method="post" action="{{ url_for('expense.add_expense') }}" class="styled-form">
+        
+        <!-- Hidden hostel ID for owners -->
+        {% if g.user.role == 'owner' and selected_hostel_id %}
+        <input type="hidden" name="hostel_id" value="{{ selected_hostel_id }}">
+        
+        <!-- Show selected hostel with option to change -->
+        <div class="form-group">
+            <label>Selected Hostel</label>
+            <div class="form-control-plaintext d-flex justify-content-between align-items-center">
+                <span><strong>{{ current_hostel_name }}</strong></span>
+                <a href="{{ url_for('expense.add_expense') }}" class="btn btn-sm btn-outline-secondary">Change Hostel</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <!-- Basic Information -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="description">Description <span class="text-danger">*</span></label>
+                    <input type="text" name="description" id="description" class="form-control" 
+                           placeholder="Enter expense description" required>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="amount">Amount (₹) <span class="text-danger">*</span></label>
+                    <input type="number" name="amount" id="amount" class="form-control" 
+                           placeholder="0.00" step="0.01" min="0" required>
+                </div>
+            </div>            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="expense_date">Expense Date <span class="text-danger">*</span></label>
+                    <input type="date" name="expense_date" id="expense_date" class="form-control" 
+                           value="{{ current_date }}" required>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="category">Category <span class="text-danger">*</span></label>
+                    <select name="category" id="category" class="form-control" required>
+                        <option value="">Select Category</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="expense_type">Expense Type <span class="text-danger">*</span></label>
+                    <select name="expense_type" id="expense_type" class="form-control" required>
+                        <option value="">Select Type</option>
+                        {% for type in expense_types %}
+                        <option value="{{ type }}">{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="payment_method">Payment Method <span class="text-danger">*</span></label>
+                    <select name="payment_method" id="payment_method" class="form-control" required>
+                        <option value="">Select Payment Method</option>
+                        {% for method in payment_methods %}
+                        <option value="{{ method }}">{{ method }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Optional Information -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="vendor_name">Vendor/Supplier Name</label>
+                    <input type="text" name="vendor_name" id="vendor_name" class="form-control" 
+                           placeholder="Enter vendor name">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="receipt_number">Receipt/Invoice Number</label>
+                    <input type="text" name="receipt_number" id="receipt_number" class="form-control" 
+                           placeholder="Enter receipt number">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="approved_by">Approved By</label>
+                    <input type="text" name="approved_by" id="approved_by" class="form-control" 
+                           placeholder="Enter approver name">
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea name="notes" id="notes" class="form-control" rows="3" 
+                              placeholder="Additional notes or comments"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> Add Expense
+            </button>
+            <a href="{{ url_for('expense.list_expenses') }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Category-based suggestions for expense type
+    const categorySelect = document.getElementById('category');
+    const typeSelect = document.getElementById('expense_type');
+    
+    const categoryTypeMapping = {
+        'Maintenance': 'Operational',
+        'Utilities': 'Operational',
+        'Food': 'Operational',
+        'Supplies': 'Operational',
+        'Staff': 'Operational',
+        'Security': 'Operational',
+        'Cleaning': 'Operational',
+        'Internet': 'Operational'
+    };
+    
+    categorySelect.addEventListener('change', function() {
+        const selectedCategory = this.value;
+        if (selectedCategory && categoryTypeMapping[selectedCategory]) {
+            typeSelect.value = categoryTypeMapping[selectedCategory];
+        }
+    });
+});
+</script>
+{% endblock %}

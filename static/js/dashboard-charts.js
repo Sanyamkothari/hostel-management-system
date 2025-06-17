@@ -1,6 +1,34 @@
 // Dashboard charts for Hostel Management System
 function initOccupancyChart(elementId, roomData) {
-    const ctx = document.getElementById(elementId).getContext('2d');
+    console.log("Initializing occupancy chart with data:", roomData);
+    
+    const chartElement = document.getElementById(elementId);
+    if (!chartElement) {
+        console.error("Chart element not found:", elementId);
+        return;
+    }
+    
+    const ctx = chartElement.getContext('2d');
+    
+    // Check if we have valid data
+    if (!roomData || !Array.isArray(roomData) || roomData.length === 0) {
+        console.warn("No room data available for chart");
+        // Draw an empty chart with a message
+        new Chart(ctx, {
+            type: 'bar',
+            data: { labels: ['No Data'], datasets: [{ data: [0] }] },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'No Room Data Available'
+                    }
+                }
+            }
+        });
+        return;
+    }
     
     // Extract data for the chart
     const labels = roomData.map(room => room.room_number);
@@ -75,7 +103,35 @@ function initOccupancyChart(elementId, roomData) {
 }
 
 function initFeesChart(elementId, feesData) {
-    const ctx = document.getElementById(elementId).getContext('2d');
+    console.log("Initializing fees chart with data:", feesData);
+    
+    const chartElement = document.getElementById(elementId);
+    if (!chartElement) {
+        console.error("Chart element not found:", elementId);
+        return;
+    }
+    
+    const ctx = chartElement.getContext('2d');
+    
+    // Check if we have valid data
+    if (!feesData) {
+        console.warn("No fee data available for chart");
+        // Draw an empty chart with a message
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: { labels: ['No Data'], datasets: [{ data: [1], backgroundColor: ['#f0f0f0'] }] },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'No Fee Data Available'
+                    }
+                }
+            }
+        });
+        return;
+    }
     
     // Extract data for the chart
     const paidAmount = feesData.paid || 0;

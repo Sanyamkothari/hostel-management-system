@@ -30,6 +30,11 @@
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
+/* Utility classes */
+.hidden-element {
+    display: none;
+}
+
 .stat-icon {
     font-size: 2.5em;
     margin-bottom: 15px;
@@ -48,6 +53,21 @@
     font-weight: 700;
     margin: 5px 0 15px;
     color: var(--primary-color);
+}
+
+/* Dynamic progress bar styling */
+.dynamic-progress-container {
+    width: 100%;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.dynamic-progress-bar {
+    height: 8px;
+    background-color: var(--primary-color);
+    transition: width 0.5s ease-in-out;
 }
 
 .stat-progress {

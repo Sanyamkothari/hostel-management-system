@@ -1,30 +1,81 @@
 {% extends "layout.html" %}
 
 {% block title %}Add Room - Hostel Management{% endblock %}
-{% block page_title %}Add New Room{% endblock %}
+{% block page_title %}
+    Add New Room
+    {% if current_hostel_name and g.user.role == 'manager' %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="form-container">
-    <form method="post" class="styled-form">
+    <!-- Hostel Selection Form (Only for Owners without hostel selected) -->
+    {% if g.user.role == 'owner' and not current_hostel_name %}
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle"></i> Please select a hostel first to add rooms.
+    </div>
+    <form method="get" action="{{ url_for('room.add_room') }}" class="styled-form mb-4">
         <div class="form-group">
-            <label for="room_number"><i class="fas fa-hashtag"></i> Room Number:</label>
-            <input type="text" id="room_number" name="room_number" required value="{{ room_number if room_number else '' }}">
-        </div>
-        <div class="form-group">
-            <label for="capacity"><i class="fas fa-users"></i> Capacity:</label>
-            <input type="number" id="capacity" name="capacity" required min="1" value="{{ capacity if capacity else '' }}">
-        </div>
-        <div class="form-group">
-            <label for="status"><i class="fas fa-check-circle"></i> Status:</label>
-            <select id="status" name="status">
-                <option value="Available" {% if status == 'Available' %}selected{% endif %}>Available</option>
-                <option value="Full" {% if status == 'Full' %}selected{% endif %}>Full</option>
-                <option value="Maintenance" {% if status == 'Maintenance' %}selected{% endif %}>Maintenance</option>
+            <label for="hostel_id">Select Hostel <span class="text-danger">*</span></label>
+            <select name="hostel_id" id="hostel_id" class="form-control" required>
+                <option value="">Choose a hostel...</option>
+                {% for hostel in hostels_list %}
+                <option value="{{ hostel.id }}">{{ hostel.name }}</option>
+                {% endfor %}
             </select>
-        </div>        <div class="form-actions">
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Continue</button>
+        </div>
+    </form>
+    {% else %}
+
+    <!-- Main Room Form -->
+    <form method="post" class="styled-form">
+        
+        <!-- Hidden hostel ID for owners -->
+        {% if g.user.role == 'owner' and current_hostel_name %}
+        {% for hostel in hostels_list %}
+            {% if hostel.name == current_hostel_name %}
+            <input type="hidden" name="hostel_id" value="{{ hostel.id }}">
+            {% endif %}
+        {% endfor %}
+        
+        <!-- Show selected hostel with option to change -->
+        <div class="form-group">
+            <label>Selected Hostel</label>
+            <div class="form-control-plaintext d-flex justify-content-between align-items-center">
+                <span><strong>{{ current_hostel_name }}</strong></span>
+                <a href="{{ url_for('room.add_room') }}" class="btn btn-sm btn-outline-secondary">Change Hostel</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="room_number"><i class="fas fa-hashtag"></i> Room Number <span class="text-danger">*</span></label>
+            <input type="text" id="room_number" name="room_number" class="form-control" required value="{{ form_data.room_number if form_data else '' }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="capacity"><i class="fas fa-users"></i> Capacity <span class="text-danger">*</span></label>
+            <input type="number" id="capacity" name="capacity" class="form-control" required min="1" value="{{ form_data.capacity if form_data else '' }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="status"><i class="fas fa-check-circle"></i> Status</label>
+            <select id="status" name="status" class="form-control">
+                <option value="Available" {% if form_data and form_data.status == 'Available' %}selected{% elif not form_data %}selected{% endif %}>Available</option>
+                <option value="Full" {% if form_data and form_data.status == 'Full' %}selected{% endif %}>Full</option>
+                <option value="Maintenance" {% if form_data and form_data.status == 'Maintenance' %}selected{% endif %}>Maintenance</option>
+            </select>
+        </div>
+        
+        <div class="form-actions">
             <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Add Room</button>
             <a href="{{ url_for('room.view_rooms') }}" class="btn btn-secondary"><i class="fas fa-times-circle"></i> Cancel</a>
         </div>
     </form>
+    {% endif %}
 </div>
 {% endblock %}

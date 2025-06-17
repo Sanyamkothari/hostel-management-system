@@ -1,0 +1,203 @@
+{% extends "layout.html" %}
+
+{% block title %}Room Statistics - Hostel Management{% endblock %}
+
+{% block page_title %}Room Statistics Dashboard{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/room-management.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="room-statistics">
+    {% if g.user.role == 'owner' and not current_hostel_name %}
+    <div class="hostel-selector">
+        <h3>Select a Hostel to View Statistics</h3>
+        <div class="hostel-cards">
+            {% for hostel in hostels_list %}
+            <a href="{{ url_for('room.statistics', hostel_id=hostel.id) }}" class="hostel-card">
+                <h4>{{ hostel.name }}</h4>
+                <p>{{ hostel.address }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    
+    <div class="page-header">
+        <h2>Room Statistics{% if current_hostel_name %} - {{ current_hostel_name }}{% endif %}</h2>
+        <div class="page-actions">
+            <a href="{{ url_for('room.view_rooms') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Rooms
+            </a>
+            <a href="{{ url_for('room.export_rooms', format='pdf') }}" class="btn btn-primary">
+                <i class="fas fa-file-pdf"></i> Export PDF
+            </a>
+        </div>
+    </div>
+
+    <!-- Key Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ statistics.total_rooms or 0 }}</div>
+            <div class="stat-label">Total Rooms</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ statistics.current_occupancy or 0 }}</div>
+            <div class="stat-label">Current Occupancy</div>
+            <div class="stat-percentage">of {{ statistics.total_capacity or 0 }} total capacity</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ "%.1f"|format(statistics.occupancy_percentage or 0) }}%</div>
+            <div class="stat-label">Occupancy Rate</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ statistics.available_spots or 0 }}</div>
+            <div class="stat-label">Available Spots</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ statistics.available_rooms or 0 }}</div>
+            <div class="stat-label">Available Rooms</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ statistics.rooms_needing_attention or 0 }}</div>
+            <div class="stat-label">Rooms Needing Attention</div>
+            {% if statistics.rooms_needing_attention > 0 %}
+            <div class="stat-percentage">
+                <a href="{{ url_for('room.maintenance_schedule') }}" class="btn btn-sm btn-warning">
+                    View Details
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Status Breakdown -->
+    <div class="chart-container">
+        <h3>Room Status Breakdown</h3>
+        <div class="status-breakdown">
+            {% set status_colors = {
+                'Available': '#28a745',
+                'Full': '#ffc107', 
+                'Maintenance': '#dc3545',
+                'Reserved': '#17a2b8',
+                'Out of Order': '#6c757d'
+            } %}
+              {% for status in ['Available', 'Full', 'Maintenance', 'Reserved', 'Out of Order'] %}
+            {% set count = statistics.get(status.lower().replace(' ', '_') + '_rooms', 0) %}
+            <div class="status-item status-{{ status.lower().replace(' ', '-') }}">
+                <div class="stat-number stat-number-{{ status.lower().replace(' ', '-') }}">{{ count }}</div>
+                <div class="stat-label">{{ status }}</div>
+                {% if statistics.total_rooms > 0 %}
+                <div class="stat-percentage">{{ "%.1f"|format((count / statistics.total_rooms) * 100) }}%</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Occupancy Chart -->
+    <div class="chart-container">
+        <h3>Room Occupancy Visualization</h3>
+        <canvas id="occupancyChart" width="400" height="200"></canvas>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="chart-container">
+        <h3>Quick Actions</h3>
+        <div class="row">
+            <div class="col-md-4">
+                <a href="{{ url_for('room.add_room') }}" class="btn btn-success btn-block">
+                    <i class="fas fa-plus"></i> Add New Room
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('room.bulk_update') }}" class="btn btn-warning btn-block">
+                    <i class="fas fa-edit"></i> Bulk Update Rooms
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('room.maintenance_schedule') }}" class="btn btn-info btn-block">
+                    <i class="fas fa-tools"></i> Maintenance Schedule
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch chart data and render occupancy chart
+    fetch('{{ url_for("room.api_chart_data") }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderOccupancyChart(data.data);
+            } else {
+                console.error('Error fetching chart data:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+});
+
+function renderOccupancyChart(chartData) {
+    const ctx = document.getElementById('occupancyChart').getContext('2d');
+    
+    const labels = chartData.map(room => room.room_number);
+    const occupancyData = chartData.map(room => room.occupancy_percentage);
+    const backgroundColors = chartData.map(room => room.status_color);
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Occupancy Percentage',
+                data: occupancyData,
+                backgroundColor: backgroundColors,
+                borderColor: backgroundColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const room = chartData[context.dataIndex];
+                            return [
+                                `Occupancy: ${room.current_occupancy}/${room.capacity}`,
+                                `Percentage: ${context.parsed.y.toFixed(1)}%`,
+                                `Status: ${room.status}`
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

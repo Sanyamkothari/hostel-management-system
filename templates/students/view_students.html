@@ -2,7 +2,14 @@
 
 {% block title %}Students - Hostel Management{% endblock %}
 
-{% block page_title %}Students Management{% endblock %}
+{% block page_title %}
+    Students Management
+    {% if current_hostel_name %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% elif g.user.role == 'owner' and not current_hostel_id %}
+        <span class="text-muted fs-5"> - All Hostels</span>
+    {% endif %}
+{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/student-cards.css') }}">
@@ -12,40 +19,52 @@
 <div class="container-fluid">
     <!-- Search and Filter Bar -->
     <div class="card mb-4">
-        <div class="card-body">
-            <form action="{{ url_for('student.view_students') }}" method="get" class="row g-3">
+        <div class="card-body">            <form action="{{ url_for('student.view_students') }}" method="get" class="row g-3">
                 <div class="col-md-3">
-                    <input type="text" class="form-control" name="name" placeholder="Search by name..." value="{{ search_params.name }}">
+                    <label for="search-name" class="form-label">Search by Name</label>
+                    <input type="text" class="form-control" id="search-name" name="name" placeholder="Search by name..." value="{{ search_params.name }}">
                 </div>
                 <div class="col-md-3">
-                    <input type="text" class="form-control" name="course" placeholder="Search by course..." value="{{ search_params.course }}">
+                    <label for="search-course" class="form-label">Search by Course</label>
+                    <input type="text" class="form-control" id="search-course" name="course" placeholder="Search by course..." value="{{ search_params.course }}">
                 </div>
                 <div class="col-md-3">
-                    <input type="text" class="form-control" name="room_number" placeholder="Search by room..." value="{{ search_params.room_number }}">
+                    <label for="search-room-number" class="form-label">Search by Room</label>
+                    <input type="text" class="form-control" id="search-room-number" name="room_number" placeholder="Search by room..." value="{{ search_params.room_number }}">
                 </div>
+                {% if g.user.role == 'owner' %}
                 <div class="col-md-3">
-                    <select class="form-select" name="filter_course">
+                    <label for="hostel_filter" class="form-label">Filter by Hostel</label>
+                    <select class="form-select" id="hostel_filter" name="hostel_id">
+                        <option value="">All Hostels</option>
+                        {% for hostel in hostels_list %}
+                            <option value="{{ hostel.id }}" {% if search_params.hostel_id == hostel.id|string %}selected{% endif %}>{{ hostel.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                <div class="col-md-3">
+                    <label for="filter-course" class="form-label">Filter by Course</label>
+                    <select class="form-select" id="filter-course" name="filter_course" title="Filter by course">
                         <option value="">All Courses</option>
                         {% for course in courses %}
                         <option value="{{ course }}" {% if search_params.filter_course == course %}selected{% endif %}>{{ course }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-12 d-flex justify-content-between">
-                    <div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search"></i> Search
+                <div class="col-md-12 d-flex justify-content-between">                    <div>
+                        <button type="submit" class="btn btn-primary" aria-label="Search for students with current filters">
+                            <i class="fas fa-search" aria-hidden="true"></i> <span class="sr-only">Search students</span>Search
                         </button>
-                        <a href="{{ url_for('student.view_students') }}" class="btn btn-secondary">
-                            <i class="fas fa-sync"></i> Reset
+                        <a href="{{ url_for('student.view_students') }}" class="btn btn-secondary" aria-label="Clear all search filters and reset view">
+                            <i class="fas fa-sync" aria-hidden="true"></i> <span class="sr-only">Reset filters</span>Reset
                         </a>
-                    </div>
-                    <div class="view-toggle">
-                        <a href="{{ url_for('student.view_students', view='card', **search_params) }}" class="btn btn-outline-primary {% if view_mode == 'card' %}active{% endif %}">
-                            <i class="fas fa-th"></i> Card View
+                    </div>                    <div class="view-toggle">
+                        <a href="{{ url_for('student.view_students', view='card', hostel_id=search_params.hostel_id, **search_params) }}" class="btn btn-outline-primary {% if view_mode == 'card' %}active{% endif %}" {% if view_mode == 'card' %}aria-current="page"{% endif %} aria-label="Switch to card view display">
+                            <i class="fas fa-th" aria-hidden="true"></i> Card View
                         </a>
-                        <a href="{{ url_for('student.view_students', view='list', **search_params) }}" class="btn btn-outline-primary {% if view_mode == 'list' %}active{% endif %}">
-                            <i class="fas fa-list"></i> List View
+                        <a href="{{ url_for('student.view_students', view='list', hostel_id=search_params.hostel_id, **search_params) }}" class="btn btn-outline-primary {% if view_mode == 'list' %}active{% endif %}" {% if view_mode == 'list' %}aria-current="page"{% endif %} aria-label="Switch to list view display">
+                            <i class="fas fa-list" aria-hidden="true"></i> List View
                         </a>
                     </div>
                 </div>
@@ -53,16 +72,15 @@
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="action-bar mb-4">
-        <a href="{{ url_for('student.add_student') }}" class="btn btn-success">
-            <i class="fas fa-plus"></i> Add New Student
+    <!-- Quick Actions -->    <div class="action-bar mb-4">
+        <a href="{{ url_for('student.add_student') }}" class="btn btn-success" aria-label="Add new student to the hostel">
+            <i class="fas fa-plus" aria-hidden="true"></i> Add New Student
         </a>
-        <a href="#" class="btn btn-info" id="export-btn">
-            <i class="fas fa-file-export"></i> Export Data
+        <a href="#" class="btn btn-info" id="export-btn" aria-label="Export student data to file">
+            <i class="fas fa-file-export" aria-hidden="true"></i> Export Data
         </a>
-        <a href="#" class="btn btn-secondary" id="print-btn">
-            <i class="fas fa-print"></i> Print List
+        <a href="#" class="btn btn-secondary" id="print-btn" aria-label="Print student list">
+            <i class="fas fa-print" aria-hidden="true"></i> Print List
         </a>
     </div>
 
@@ -87,6 +105,9 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ student.name }}</h5>
                         <p class="student-id">ID: {{ student.student_id_number }}</p>
+                        {% if g.user.role == 'owner' and student.hostel_name %}
+                            <p class="student-hostel"><i class="fas fa-hotel"></i> Hostel: {{ student.hostel_name }}</p>
+                        {% endif %}
                         <div class="student-info">
                             <p><i class="fas fa-graduation-cap"></i> {{ student.course }}</p>
                             <p><i class="fas fa-phone"></i> {{ student.contact }}</p>
@@ -98,17 +119,19 @@
                                 <span class="badge bg-warning">Unassigned</span>
                                 {% endif %}
                             </p>
+                            {% if g.user.role == 'owner' and student.hostel_name and not search_params.hostel_id %}
+                            <p class="card-text"><small class="text-muted">Hostel: {{ student.hostel_name }}</small></p>
+                            {% endif %}
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <a href="{{ url_for('student.view_student', student_id=student.id) }}" class="btn btn-sm btn-primary">
+                    <div class="card-footer">                        <a href="{{ url_for('student.view_student', student_id=student.id) }}" class="btn btn-sm btn-primary" title="View student details">
                             <i class="fas fa-eye"></i> View
                         </a>
-                        <a href="{{ url_for('student.edit_student', student_id=student.id) }}" class="btn btn-sm btn-warning">
+                        <a href="{{ url_for('student.edit_student', student_id=student.id) }}" class="btn btn-sm btn-warning" title="Edit student information">
                             <i class="fas fa-edit"></i> Edit
                         </a>
-                        <button type="button" class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ student.id }}" data-name="{{ student.name }}">
-                            <i class="fas fa-trash"></i>
+                        <button type="button" class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ student.id }}" data-name="{{ student.name }}" title="Delete student">
+                            <i class="fas fa-trash"></i> Delete
                         </button>
                     </div>
                 </div>
@@ -124,12 +147,14 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>ID Number</th>
-                                <th>Course</th>
-                                <th>Contact</th>
-                                <th>Email</th>
-                                <th>Room</th>
-                                <th>Actions</th>
+                                <th scope="col">Student ID</th>
+                                <th scope="col">Contact</th>
+                                <th scope="col">Course</th>
+                                {% if g.user.role == 'owner' and not search_params.hostel_id %}
+                                    <th scope="col">Hostel</th>
+                                {% endif %}
+                                <th scope="col">Room</th>
+                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -137,19 +162,26 @@
                             <tr>
                                 <td>{{ student.name }}</td>
                                 <td>{{ student.student_id_number }}</td>
-                                <td>{{ student.course }}</td>
                                 <td>{{ student.contact }}</td>
-                                <td>{{ student.email }}</td>
-                                <td>{{ student.room_number or 'Not Assigned' }}</td>
+                                <td>{{ student.course }}</td>
+                                {% if g.user.role == 'owner' and not search_params.hostel_id %}
+                                    <td>{{ student.hostel_name }}</td>
+                                {% endif %}
                                 <td>
-                                    <a href="{{ url_for('student.view_student', student_id=student.id) }}" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-eye"></i>
+                                    {% if student.room_number %}
+                                        <span class="badge bg-light text-dark">{{ student.room_number }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Not Assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>                                    <a href="{{ url_for('student.view_student', student_id=student.id) }}" class="btn btn-sm btn-primary" title="View student details">
+                                        <i class="fas fa-eye"></i> <span class="sr-only">View</span>
                                     </a>
-                                    <a href="{{ url_for('student.edit_student', student_id=student.id) }}" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i>
+                                    <a href="{{ url_for('student.edit_student', student_id=student.id) }}" class="btn btn-sm btn-warning" title="Edit student information">
+                                        <i class="fas fa-edit"></i> <span class="sr-only">Edit</span>
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ student.id }}" data-name="{{ student.name }}">
-                                        <i class="fas fa-trash"></i>
+                                    <button type="button" class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ student.id }}" data-name="{{ student.name }}" title="Delete student">
+                                        <i class="fas fa-trash"></i> <span class="sr-only">Delete</span>
                                     </button>
                                 </td>
                             </tr>

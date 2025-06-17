@@ -2,71 +2,129 @@
 
 {% block title %}Add Fee - Hostel Management{% endblock %}
 
-{% block page_title %}Add New Fee{% endblock %}
+{% block page_title %}
+    Add New Fee
+    {% if current_hostel_name and g.user.role == 'manager' %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="form-container">
-    <form method="post" action="{{ url_for('fee.add_fee') }}" class="styled-form">
+    <!-- Hostel Selection Form (Only for Owners) -->
+    {% if g.user.role == 'owner' and not selected_hostel_id %}
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle"></i> Please select a hostel first to add fees for students.
+    </div>
+    <form method="get" action="{{ url_for('fee.add_fee') }}" class="styled-form mb-4">
         <div class="form-group">
-            <label for="student_id">Student</label>
+            <label for="hostel_id">Select Hostel <span class="text-danger">*</span></label>
+            <select name="hostel_id" id="hostel_id" class="form-control" required>
+                <option value="">Choose a hostel...</option>
+                {% for hostel in hostels_list %}
+                <option value="{{ hostel.id }}">{{ hostel.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Continue</button>
+        </div>
+    </form>
+    {% else %}
+
+    <!-- Main Fee Form -->
+    <form method="post" action="{{ url_for('fee.add_fee') }}" class="styled-form">
+        
+        <!-- Hidden hostel ID for owners -->
+        {% if g.user.role == 'owner' and selected_hostel_id %}
+        <input type="hidden" name="hostel_id" value="{{ selected_hostel_id }}">
+        
+        <!-- Show selected hostel with option to change -->
+        <div class="form-group">
+            <label>Selected Hostel</label>
+            <div class="form-control-plaintext d-flex justify-content-between align-items-center">
+                <span><strong>{{ current_hostel_name }}</strong></span>
+                <a href="{{ url_for('fee.add_fee') }}" class="btn btn-sm btn-outline-secondary">Change Hostel</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Student Selection -->
+        <div class="form-group">
+            <label for="student_id">Student <span class="text-danger">*</span></label>
             <select name="student_id" id="student_id" class="form-control" required>
                 <option value="">Select a student</option>
                 {% for student in students %}
                 <option value="{{ student.id }}">{{ student.name }} ({{ student.student_id_number or 'No ID' }})</option>
                 {% endfor %}
             </select>
+            {% if not students %}
+            <small class="form-text text-muted">No students found for this hostel.</small>
+            {% endif %}
         </div>
-        
+
+        <!-- Amount Input -->
         <div class="form-group">
-            <label for="amount">Amount ($)</label>
+            <label for="amount">Amount ($) <span class="text-danger">*</span></label>
             <input type="number" name="amount" id="amount" class="form-control" step="0.01" min="0.01" required>
-        </div>
-        
+        </div>        <!-- Due Date -->
         <div class="form-group">
-            <label for="due_date">Due Date</label>
+            <label for="due_date">Due Date <span class="text-danger">*</span></label>
             <input type="date" name="due_date" id="due_date" class="form-control" required>
         </div>
-        
+
+        <!-- Status Selection -->
         <div class="form-group">
             <label for="status">Status</label>
             <select name="status" id="status" class="form-control">
                 <option value="Pending">Pending</option>
                 <option value="Paid">Paid</option>
             </select>
-        </div>
-        
-        <div class="form-group paid-date-container" style="display: none;">
+        </div>        <!-- Payment Date (Hidden by default, shown when status is Paid) -->
+        <div class="form-group hidden-initially" id="paid-date-container">
             <label for="paid_date">Payment Date</label>
             <input type="date" name="paid_date" id="paid_date" class="form-control">
         </div>
-        
+
+        <!-- Form Actions -->
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Add Fee</button>
             <a href="{{ url_for('fee.view_fees') }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
+    {% endif %}
 </div>
 
 <script>
-    // Show/hide paid date field based on status
-    document.getElementById('status').addEventListener('change', function() {
-        var paidDateContainer = document.querySelector('.paid-date-container');
-        if (this.value === 'Paid') {
-            paidDateContainer.style.display = 'block';
-            // Set default value to today
-            var today = new Date().toISOString().split('T')[0];
-            document.getElementById('paid_date').value = today;
-        } else {
-            paidDateContainer.style.display = 'none';
-        }
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const statusSelect = document.getElementById('status');
+    const paidDateContainer = document.getElementById('paid-date-container');
+    const paidDateInput = document.getElementById('paid_date');
+    const dueDateInput = document.getElementById('due_date');
+    
+    // Show/hide payment date based on status
+    if (statusSelect) {
+        statusSelect.addEventListener('change', function() {
+            if (this.value === 'Paid') {
+                paidDateContainer.style.display = 'block';
+                // Set default payment date to today
+                const today = new Date().toISOString().split('T')[0];
+                paidDateInput.value = today;
+            } else {
+                paidDateContainer.style.display = 'none';
+                paidDateInput.value = '';
+            }
+        });
+    }
     
     // Set default due date to 30 days from now
-    window.addEventListener('load', function() {
-        var thirtyDaysFromNow = new Date();
+    if (dueDateInput) {
+        const thirtyDaysFromNow = new Date();
         thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-        var formattedDate = thirtyDaysFromNow.toISOString().split('T')[0];
-        document.getElementById('due_date').value = formattedDate;
-    });
+        const formattedDate = thirtyDaysFromNow.toISOString().split('T')[0];
+        dueDateInput.value = formattedDate;
+    }
+});
 </script>
 {% endblock %}

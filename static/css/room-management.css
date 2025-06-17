@@ -1,0 +1,467 @@
+/* Room Management CSS for Hostel Management System */
+
+/* CSS Variables */
+:root {
+    --primary-color: #007bff;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --secondary-color: #6c757d;
+}
+
+/* Statistics page specific styles */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--primary-color);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.stat-percentage {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.status-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.status-item {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 6px;
+    background: #f8f9fa;
+}
+
+.status-available { border-left: 4px solid #28a745; }
+.status-full { border-left: 4px solid #ffc107; }
+.status-maintenance { border-left: 4px solid #dc3545; }
+.status-reserved { border-left: 4px solid #17a2b8; }
+.status-out-of-order { border-left: 4px solid #6c757d; }
+
+/* Status-specific stat number colors */
+.stat-number-available { color: #28a745; font-size: 1.8rem; }
+.stat-number-full { color: #ffc107; font-size: 1.8rem; }
+.stat-number-maintenance { color: #dc3545; font-size: 1.8rem; }
+.stat-number-reserved { color: #17a2b8; font-size: 1.8rem; }
+.stat-number-out-of-order { color: #6c757d; font-size: 1.8rem; }
+
+.room-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.room-filters .form-group {
+    margin-bottom: 0;
+    min-width: 150px;
+}
+
+.room-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.room-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 20px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.room-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.room-card.available {
+    border-left: 5px solid #28a745;
+}
+
+.room-card.full {
+    border-left: 5px solid #007bff;
+}
+
+.room-card.maintenance {
+    border-left: 5px solid #dc3545;
+}
+
+.room-card.out-of-order {
+    border-left: 5px solid #6c757d;
+}
+
+.room-card.under-maintenance {
+    border-left: 5px solid #fd7e14;
+}
+
+.room-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.room-number {
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.room-status {
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-available {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-full {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.status-maintenance {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-out-of-order {
+    background-color: #f0f0f0;
+    color: #666;
+}
+
+.status-under-maintenance {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.room-details {
+    margin-bottom: 15px;
+}
+
+.room-detail-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.room-detail-item:last-child {
+    border-bottom: none;
+}
+
+.occupancy-bar {
+    height: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    overflow: hidden;
+}
+
+.occupancy-fill {
+    height: 100%;
+    background-color: #007bff;
+    border-radius: 5px;
+}
+
+.room-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.view-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.view-toggle button {
+    padding: 5px 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.view-toggle button.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.room-list {
+    display: none;
+}
+
+.room-list.active {
+    display: block;
+}
+
+.room-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.room-table th, .room-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.room-table th {
+    background-color: #f8f9fa;
+}
+
+.room-grid {
+    display: none;
+}
+
+.room-grid.active {
+    display: grid;
+}
+
+/* Fix for forms with inline styles */
+.inline-action-form {
+    display: inline;
+}
+
+/* Occupancy container styles */
+.occupancy-container {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+}
+
+/* Enhanced Action Bar */
+.action-bar {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Statistics Summary Cards */
+.statistics-summary {
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    border-left: 4px solid #007bff;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card.success {
+    border-left-color: #28a745;
+}
+
+.stat-card.warning {
+    border-left-color: #ffc107;
+}
+
+.stat-card.info {
+    border-left-color: #17a2b8;
+}
+
+.stat-card.danger {
+    border-left-color: #dc3545;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Student List in Room Cards */
+.room-students {
+    margin-top: 15px;
+}
+
+.room-students h6 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.student-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.student-item {
+    padding: 5px 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.student-item a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.student-item a:hover {
+    text-decoration: underline;
+}
+
+/* Fix for template errors - new utility classes */
+.occupancy-status-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.section-title-spaced {
+    margin-top: 25px;
+}
+
+.margin-top-8 {
+    margin-top: 8px;
+}
+
+.small-text-muted {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 4px;
+}
+
+.font-weight-600 {
+    font-weight: 600;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.margin-bottom-8 {
+    margin-bottom: 8px;
+}
+
+/* Selection and bulk update utility classes */
+.selection-summary-hidden {
+    display: none;
+}
+
+.bulk-action-form-hidden {
+    display: none;
+}
+
+.capacity-fill {
+    height: 100%;
+    background: #007bff;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+/* Dynamic width classes for progress bars */
+.progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.progress-fill-available {
+    background: #28a745;
+}
+
+.progress-fill-warning {
+    background: #ffc107;
+}
+
+.progress-fill-full {
+    background: #dc3545;
+}
+
+/* Occupancy fill styles */
+.occupancy-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* Room checkbox label styling */
+.room-select-label {
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.room-select-checkbox {
+    margin: 0;
+}

@@ -36,6 +36,20 @@
                     </div>
                 </div>
                 
+                {% if current_user_role == 'owner' %}
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="hostel_id" class="form-label">Hostel*</label>
+                        <select id="hostel_id" name="hostel_id" class="form-select" required>
+                            <option value="">-- Select Hostel --</option>
+                            {% for hostel in hostels_list %}
+                            <option value="{{ hostel.id }}" {% if request.form.get('hostel_id', request.args.get('hostel_id'))|int == hostel.id %}selected{% endif %}>{{ hostel.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                {% endif %}
+                
                 <div class="row g-3 mb-3">
                     <div class="col-md-12">
                         <label for="description" class="form-label">Description*</label>

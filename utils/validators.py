@@ -41,7 +41,7 @@ def validate_date_format(date_str, formats=None):
     
     return False
 
-def validate_student_data(data):
+def validate_student_data(data, is_update=False, student_id=None):
     """Validate student data. Returns a list of error messages."""
     errors = []
     

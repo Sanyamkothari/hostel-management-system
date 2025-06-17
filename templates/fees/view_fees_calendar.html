@@ -2,7 +2,16 @@
 
 {% block title %}Fee Calendar - Hostel Management{% endblock %}
 
-{% block page_title %}Fee Payment Calendar{% endblock %}
+{% block page_title %}
+    Fee Payment Calendar
+    {% if current_hostel_name and g.user.role == 'manager' %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% elif g.user.role == 'owner' and not search_params.hostel_id %}
+        <span class="text-muted fs-5"> - All Hostels</span>
+    {% elif g.user.role == 'owner' and current_hostel_name %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/fee-calendar.css') }}">
@@ -15,9 +24,9 @@
         <div class="card-body">
             <form action="{{ url_for('fee.view_fees') }}" method="get" class="row g-3">
                 <input type="hidden" name="view" value="calendar">
-                
-                <div class="col-md-3">
-                    <select class="form-select" name="date_range" id="date-range">
+                  <div class="col-md-3">
+                    <label for="date-range" class="form-label">Date Range</label>
+                    <select class="form-select" name="date_range" id="date-range" title="Select date range">
                         <option value="this_month" {% if filter_params.date_range == 'this_month' %}selected{% endif %}>This Month</option>
                         <option value="prev_month" {% if filter_params.date_range == 'prev_month' %}selected{% endif %}>Previous Month</option>
                         <option value="next_month" {% if filter_params.date_range == 'next_month' %}selected{% endif %}>Next Month</option>
@@ -26,16 +35,31 @@
                     </select>
                 </div>
                 
+                {% if g.user.role == 'owner' %}
+                <div class="col-md-3">
+                    <label for="hostel_id" class="form-label">Hostel</label>
+                    <select class="form-select" name="hostel_id" id="hostel_id" title="Filter by hostel">
+                        <option value="">All Hostels</option>
+                        {% for hostel in hostels_list %}
+                            <option value="{{ hostel.id }}" {% if search_params.hostel_id == hostel.id|string %}selected{% endif %}>{{ hostel.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                
                 <div class="col-md-3 date-range-custom {% if filter_params.date_range == 'custom' %}show{% endif %}">
-                    <input type="date" class="form-control" name="start_date" id="start-date" value="{{ filter_params.start_date }}">
+                    <label for="start-date" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" name="start_date" id="start-date" title="Start date" value="{{ filter_params.start_date }}">
                 </div>
                 
                 <div class="col-md-3 date-range-custom {% if filter_params.date_range == 'custom' %}show{% endif %}">
-                    <input type="date" class="form-control" name="end_date" id="end-date" value="{{ filter_params.end_date }}">
+                    <label for="end-date" class="form-label">End Date</label>
+                    <input type="date" class="form-control" name="end_date" id="end-date" title="End date" value="{{ filter_params.end_date }}">
                 </div>
                 
                 <div class="col-md-3">
-                    <select class="form-select" name="status">
+                    <label for="status-filter" class="form-label">Status</label>
+                    <select class="form-select" name="status" id="status-filter" title="Filter by status">
                         <option value="">All Statuses</option>
                         {% for status in statuses %}
                         <option value="{{ status }}" {% if filter_params.status == status %}selected{% endif %}>{{ status }}</option>
@@ -44,7 +68,8 @@
                 </div>
                 
                 <div class="col-md-3">
-                    <input type="text" class="form-control" name="student_name" placeholder="Student name..." value="{{ filter_params.student_name }}">
+                    <label for="student-name" class="form-label">Student Name</label>
+                    <input type="text" class="form-control" id="student-name" name="student_name" placeholder="Student name..." value="{{ filter_params.student_name }}">
                 </div>
                 
                 <div class="col-md-12 d-flex justify-content-between">
@@ -57,13 +82,13 @@
                         </a>
                     </div>
                     <div class="view-toggle">
-                        <a href="{{ url_for('fee.view_fees', view='calendar', **filter_params) }}" class="btn btn-outline-primary active">
+                        <a href="{{ url_for('fee.view_fees', view='calendar', **filter_params) }}" class="btn btn-outline-primary active" title="Calendar View">
                             <i class="fas fa-calendar-alt"></i> Calendar
                         </a>
-                        <a href="{{ url_for('fee.view_fees', view='card', **filter_params) }}" class="btn btn-outline-primary">
+                        <a href="{{ url_for('fee.view_fees', view='card', **filter_params) }}" class="btn btn-outline-primary" title="Card View">
                             <i class="fas fa-th"></i> Card
                         </a>
-                        <a href="{{ url_for('fee.view_fees', view='list', **filter_params) }}" class="btn btn-outline-primary">
+                        <a href="{{ url_for('fee.view_fees', view='list', **filter_params) }}" class="btn btn-outline-primary" title="List View">
                             <i class="fas fa-list"></i> List
                         </a>
                     </div>
@@ -77,12 +102,12 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Fee Payment Calendar</h5>
             <div>
-                <button class="btn btn-sm btn-primary" id="prev-month">
-                    <i class="fas fa-chevron-left"></i>
+                <button class="btn btn-sm btn-primary" id="prev-month" title="Previous Month">
+                    <i class="fas fa-chevron-left"></i> Previous
                 </button>
                 <span class="mx-2" id="calendar-title">May 2025</span>
-                <button class="btn btn-sm btn-primary" id="next-month">
-                    <i class="fas fa-chevron-right"></i>
+                <button class="btn btn-sm btn-primary" id="next-month" title="Next Month">
+                    Next <i class="fas fa-chevron-right"></i>
                 </button>
             </div>
         </div>
@@ -104,23 +129,23 @@
             
             <div class="calendar-legend mt-4">
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: #e3f2fd;"></div>
+                    <div class="legend-color legend-no-fees"></div>
                     <div>No Fees</div>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: #4caf50; opacity: 0.2;"></div>
+                    <div class="legend-color legend-paid"></div>
                     <div>All Paid</div>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: #2196f3; opacity: 0.4;"></div>
+                    <div class="legend-color legend-pending"></div>
                     <div>Pending</div>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: #f44336; opacity: 0.3;"></div>
+                    <div class="legend-color legend-overdue"></div>
                     <div>Overdue</div>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: #ff9800; opacity: 0.3;"></div>
+                    <div class="legend-color legend-mixed"></div>
                     <div>Mixed Status</div>
                 </div>
             </div>
@@ -156,10 +181,12 @@
                     </div>
                     
                     <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
+                        <table class="table table-striped">                            <thead>
                                 <tr>
                                     <th>Student</th>
+                                    {% if g.user.role == 'owner' and not search_params.hostel_id %}
+                                    <th>Hostel</th>
+                                    {% endif %}
                                     <th>Amount</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -346,9 +373,10 @@
                 } else if (fee.status === 'Paid') {
                     row.classList.add('table-success');
                 }
-                
-                row.innerHTML = `
+                  row.innerHTML = `
                     <td>${fee.student_name}</td>
+                    ${document.querySelector('th:nth-child(2)').textContent.trim() === 'Hostel' ? 
+                      `<td>${fee.hostel_name || 'Unknown'}</td>` : ''}
                     <td>$${fee.amount.toFixed(2)}</td>
                     <td>${fee.status}</td>
                     <td>

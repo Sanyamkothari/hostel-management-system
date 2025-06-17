@@ -61,8 +61,7 @@ class EmailNotifier:
             server.ehlo()
             server.starttls()
             server.login(SMTP_USERNAME, SMTP_PASSWORD)
-            
-            # Send email
+              # Send email
             server.sendmail(from_email, to_email, msg.as_string())
             server.quit()
             
@@ -72,7 +71,7 @@ class EmailNotifier:
             return False
     
     @staticmethod
-    def send_fee_reminder(student_id, student_name, student_email, fee_amount, due_date, days_overdue=0):
+    def send_fee_reminder(student_id, student_name, student_email, fee_amount, due_date, days_overdue=0, hostel_name=None):
         """
         Send fee payment reminder email to a student
         
@@ -83,6 +82,7 @@ class EmailNotifier:
             fee_amount: Amount due
             due_date: Due date of the payment
             days_overdue: Number of days the payment is overdue
+            hostel_name: Name of the hostel (optional)
             
         Returns:
             True if email sent successfully, False otherwise
@@ -120,9 +120,9 @@ class EmailNotifier:
             </style>
         </head>
         <body>
-            <div class="container">
-                <div class="header">
+            <div class="container">                <div class="header">
                     <h2>Hostel Fee Payment Reminder</h2>
+                    {f"<h3>{hostel_name}</h3>" if hostel_name else ""}
                 </div>
                 <div class="content">
                     <p>Dear {student_name},</p>
@@ -130,11 +130,11 @@ class EmailNotifier:
                     <p class="{urgency}">
                         {"Your hostel fee payment is overdue by " + str(days_overdue) + " days." if days_overdue > 0 else
                          "Your hostel fee payment is due today." if days_overdue == 0 else
-                         "This is a reminder about your upcoming hostel fee payment."}
-                    </p>
+                         "This is a reminder about your upcoming hostel fee payment."}                    </p>
                     
                     <p><strong>Student ID:</strong> {student_id}</p>
                     <p><strong>Due Date:</strong> {formatted_due_date}</p>
+                    {f"<p><strong>Hostel:</strong> {hostel_name}</p>" if hostel_name else ""}
                     
                     <div class="amount">
                         Amount Due: ${fee_amount}
@@ -167,10 +167,10 @@ class EmailNotifier:
         {"Your hostel fee payment is overdue by " + str(days_overdue) + " days." if days_overdue > 0 else
          "Your hostel fee payment is due today." if days_overdue == 0 else
          "This is a reminder about your upcoming hostel fee payment."}
-        
-        Student ID: {student_id}
+          Student ID: {student_id}
         Due Date: {formatted_due_date}
         Amount Due: ${fee_amount}
+        {f"Hostel: {hostel_name}" if hostel_name else ""}
         
         Please ensure timely payment to avoid any penalties.
         
@@ -180,8 +180,7 @@ class EmailNotifier:
         
         This is an automated message from the Hostel Management System.
         """
-        
-        # Send the email
+          # Send the email
         return EmailNotifier.send_email(
             to_email=student_email,
             subject=subject,
@@ -190,13 +189,14 @@ class EmailNotifier:
         )
     
     @staticmethod
-    def send_bulk_fee_reminders(days_threshold=3):
+    def send_bulk_fee_reminders(days_threshold=3, hostel_id=None):
         """
         Send reminders to students with pending fees that are due within the threshold days
         or already overdue
         
         Args:
             days_threshold: Number of days before due date to send reminder
+            hostel_id: Optional hostel ID to filter reminders by hostel
             
         Returns:
             Dictionary with counts of emails sent, failed, and skipped
@@ -210,15 +210,22 @@ class EmailNotifier:
         # Get pending fees that are either due soon or overdue
         query = """
             SELECT f.id, f.student_id, f.amount, f.due_date, 
-                   s.name, s.email, s.student_id_number
+                   s.name, s.email, s.student_id_number, h.name as hostel_name
             FROM fees f
             JOIN students s ON f.student_id = s.id
+            LEFT JOIN hostels h ON f.hostel_id = h.id
             WHERE f.status = 'Pending'
               AND (f.due_date <= ? OR f.due_date <= ?)
               AND s.email IS NOT NULL
         """
+        params = [today.isoformat(), upcoming_due_date]
         
-        pending_fees = conn.execute(query, (today.isoformat(), upcoming_due_date)).fetchall()
+        # Add hostel filtering if specified
+        if hostel_id is not None:
+            query += " AND f.hostel_id = ? AND s.hostel_id = ?"
+            params.extend([hostel_id, hostel_id])
+        
+        pending_fees = conn.execute(query, tuple(params)).fetchall()
         conn.close()
         
         # Statistics for reporting
@@ -239,6 +246,9 @@ class EmailNotifier:
             due_date = date.fromisoformat(fee['due_date'])
             days_overdue = (today - due_date).days
             
+            # Include hostel name in the reminder if available
+            hostel_name = fee.get('hostel_name', '')
+            
             # Send the reminder email
             success = EmailNotifier.send_fee_reminder(
                 student_id=fee['student_id_number'] or fee['student_id'],
@@ -246,7 +256,8 @@ class EmailNotifier:
                 student_email=fee['email'],
                 fee_amount=fee['amount'],
                 due_date=due_date,
-                days_overdue=days_overdue
+                days_overdue=days_overdue,
+                hostel_name=hostel_name
             )
             
             if success:

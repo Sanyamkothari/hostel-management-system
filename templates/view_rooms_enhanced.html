@@ -61,14 +61,14 @@
                     {% if occupancy_percent >= 90 %}occupancy-high
                     {% elif occupancy_percent >= 60 %}occupancy-medium
                     {% else %}occupancy-low{% endif %}" 
-                    style="width: {{ occupancy_percent }}%">
+                    data-progress-width="{{ occupancy_percent }}"
                 </div>
             </div>
             
             {% if room.students %}
             <ul class="student-list">
                 {% for student in room.students %}
-                <li><a href="{{ url_for('student.view_student_detail', student_id=student.id) }}"><i class="fas fa-user"></i> {{ student.name }}</a></li>
+                <li><a href="{{ url_for('student.view_student', student_id=student.id) }}"><i class="fas fa-user"></i> {{ student.name }}</a></li>
                 {% endfor %}
             </ul>
             {% else %}
@@ -90,7 +90,7 @@
     </div>
 
     <!-- List View (Hidden by default) -->
-    <div class="table-responsive" id="listView" style="display: none;">
+    <div class="table-responsive" id="listView" data-display="none">
         <table class="table data-table">
             <thead>
                 <tr>
@@ -117,7 +117,7 @@
                     <td>
                         {% if room.students %}
                             {% for student in room.students %}
-                                <a href="{{ url_for('student.view_student_detail', student_id=student.id) }}" class="badge bg-info text-decoration-none">{{ student.name }}</a>
+                                <a href="{{ url_for('student.view_student', student_id=student.id) }}" class="badge bg-info text-decoration-none">{{ student.name }}</a>
                             {% endfor %}
                         {% else %}
                             <span class="text-muted">None</span>

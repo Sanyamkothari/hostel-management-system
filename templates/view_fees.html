@@ -1,53 +1,330 @@
 {% extends "layout.html" %}
 
-{% block title %}View Fees - Hostel Management{% endblock %}
-{% block page_title %}Fee Records{% endblock %}
+{% block title %}Fee Management - Hostel Management{% endblock %}
+{% block page_title %}
+    <i class="fas fa-money-bill-wave"></i> Fee Management
+    {% if current_hostel_name and g.user.role == 'manager' %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/optimized-common.css') }}">
+<script src="{{ url_for('static', filename='js/optimized-utils.js') }}"></script>
+{% endblock %}
 
 {% block content %}
-<div class="actions-bar">
-    <a href="{{ url_for('fee.add_fee') }}" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Add Fee Record</a>
+<!-- Action Header -->
+<div class="actions-header">
+    <div>
+        <a href="{{ url_for('fee.add_fee') }}" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Add Fee Record
+        </a>
+    </div>    <div class="export-actions">
+        <button class="btn btn-export" onclick="exportToCSV()" title="Export to CSV" aria-label="Export fee data to CSV file">
+            <i class="fas fa-file-csv" aria-hidden="true"></i> Export CSV
+        </button>
+        <button class="btn btn-export" onclick="exportToPDF()" title="Export to PDF" aria-label="Export fee data to PDF file">
+            <i class="fas fa-file-pdf" aria-hidden="true"></i> Export PDF
+        </button>
+        <button class="btn btn-export" onclick="window.print()" title="Print Table" aria-label="Print fee table">
+            <i class="fas fa-print" aria-hidden="true"></i> Print
+        </button>
+    </div>
 </div>
-<div class="table-responsive">
-    <table class="data-table">
-        <thead>
+
+<!-- Advanced Filters -->
+<div class="filter-section">
+    <div class="filter-header">
+        <h4><i class="fas fa-filter"></i> Advanced Filters</h4>
+    </div>
+    <form id="filterForm" method="GET" class="filter-form">
+        <div class="filter-grid">
+            <div class="filter-group">
+                <label for="student_search">Student Name</label>
+                <input type="text" id="student_search" name="student_search" placeholder="Search by student name..." 
+                       value="{{ request.args.get('student_search', '') }}">
+            </div>
+            
+            <div class="filter-group">
+                <label for="status_filter">Status</label>
+                <select id="status_filter" name="status_filter">
+                    <option value="">All Statuses</option>
+                    <option value="Paid" {{ 'selected' if request.args.get('status_filter') == 'Paid' }}>Paid</option>
+                    <option value="Pending" {{ 'selected' if request.args.get('status_filter') == 'Pending' }}>Pending</option>
+                    <option value="Overdue" {{ 'selected' if request.args.get('status_filter') == 'Overdue' }}>Overdue</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="amount_min">Min Amount</label>
+                <input type="number" id="amount_min" name="amount_min" placeholder="0" step="0.01"
+                       value="{{ request.args.get('amount_min', '') }}">
+            </div>
+            
+            <div class="filter-group">
+                <label for="amount_max">Max Amount</label>
+                <input type="number" id="amount_max" name="amount_max" placeholder="10000" step="0.01"
+                       value="{{ request.args.get('amount_max', '') }}">
+            </div>
+            
+            <div class="filter-group">
+                <label for="due_date_from">Due Date From</label>
+                <input type="date" id="due_date_from" name="due_date_from"
+                       value="{{ request.args.get('due_date_from', '') }}">
+            </div>
+            
+            <div class="filter-group">
+                <label for="due_date_to">Due Date To</label>
+                <input type="date" id="due_date_to" name="due_date_to"
+                       value="{{ request.args.get('due_date_to', '') }}">
+            </div>
+        </div>
+        
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-filter-primary" title="Apply Filters">
+                <i class="fas fa-search"></i> Apply Filters
+            </button>
+            <button type="button" class="btn btn-filter-secondary" onclick="clearFilters()" title="Clear All Filters">
+                <i class="fas fa-times"></i> Clear Filters
+            </button>
+            <button type="button" class="btn btn-filter-secondary" onclick="toggleFilters()" title="Toggle Quick View">
+                <i class="fas fa-eye"></i> Quick View
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-cards">
+    <div class="stat-card paid">
+        <h3 id="paidCount">{{ fees|selectattr('status', 'equalto', 'Paid')|list|length }}</h3>
+        <p>Paid Fees</p>
+    </div>
+    <div class="stat-card pending">
+        <h3 id="pendingCount">{{ fees|selectattr('status', 'equalto', 'Pending')|list|length }}</h3>
+        <p>Pending Fees</p>
+    </div>
+    <div class="stat-card overdue">
+        <h3 id="overdueCount">{{ fees|selectattr('is_overdue', 'equalto', true)|list|length }}</h3>
+        <p>Overdue Fees</p>
+    </div>
+    <div class="stat-card">
+        <h3>₹{{ "%.2f"|format(fees|sum(attribute='amount')|float) }}</h3>
+        <p>Total Amount</p>
+    </div>
+</div>
+
+<!-- Enhanced Fee Table -->
+<div class="table-container">
+    <table id="feeTable" class="enhanced-table" data-sortable="true">        <thead>
             <tr>
-                <th>ID</th>
-                <th>Student Name</th>
-                <th>Amount</th>
-                <th>Due Date</th>
-                <th>Paid Date</th>
-                <th>Status</th>
+                <th class="sortable-header" onclick="sortTable(0)" data-sort="numeric" title="Sort by ID" 
+                    role="button" tabindex="0" aria-label="Sort by fee ID">
+                    <i class="fas fa-sort" aria-hidden="true"></i> ID
+                </th>
+                <th class="sortable-header" onclick="sortTable(1)" data-sort="text" title="Sort by Student Name"
+                    role="button" tabindex="0" aria-label="Sort by student name">
+                    <i class="fas fa-sort" aria-hidden="true"></i> Student Name
+                </th>
+                <th class="sortable-header" onclick="sortTable(2)" data-sort="numeric" title="Sort by Amount"
+                    role="button" tabindex="0" aria-label="Sort by fee amount">
+                    <i class="fas fa-sort" aria-hidden="true"></i> Amount
+                </th>
+                <th class="sortable-header" onclick="sortTable(3)" data-sort="date" title="Sort by Due Date"
+                    role="button" tabindex="0" aria-label="Sort by due date">
+                    <i class="fas fa-sort" aria-hidden="true"></i> Due Date
+                </th>
+                <th class="sortable-header" onclick="sortTable(4)" data-sort="date" title="Sort by Paid Date"
+                    role="button" tabindex="0" aria-label="Sort by paid date">
+                    <i class="fas fa-sort" aria-hidden="true"></i> Paid Date
+                </th>
+                <th class="sortable-header" onclick="sortTable(5)" data-sort="text" title="Sort by Status"
+                    role="button" tabindex="0" aria-label="Sort by payment status">
+                    <i class="fas fa-sort" aria-hidden="true"></i> Status
+                </th>
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="feeTableBody">
             {% for fee in fees %}
-            <tr {% if fee.is_overdue %}class="overdue-row"{% endif %}>                <td>{{ fee.id }}</td>
-                <td><a href="{{ url_for('student.edit_student', student_id=fee.student_id) }}">{{ fee.student_name }}</a></td>
-                <td>₹{{ "%.2f"|format(fee.amount) }}</td> {# Assuming INR currency #}
-                <td>{{ fee.due_date if fee.due_date else 'N/A' }}</td>
-                <td>{{ fee.paid_date if fee.paid_date else 'N/A' }}</td>
+            <tr {% if fee.is_overdue and fee.status == 'Pending' %}class="overdue-row"{% endif %} 
+                data-status="{{ fee.status }}" 
+                data-amount="{{ fee.amount }}" 
+                data-student="{{ fee.student_name }}"
+                data-due-date="{{ fee.due_date or '' }}"
+                data-paid-date="{{ fee.paid_date or '' }}">
+                <td><strong>#{{ fee.id }}</strong></td>
+                <td>
+                    <a href="{{ url_for('student.edit_student', student_id=fee.student_id) }}" class="student-link">
+                        <i class="fas fa-user"></i> {{ fee.student_name }}
+                    </a>
+                </td>
+                <td class="amount-display">₹{{ "%.2f"|format(fee.amount) }}</td>
+                <td>
+                    {% if fee.due_date %}
+                        <i class="fas fa-calendar-alt"></i> {{ fee.due_date }}
+                    {% else %}
+                        <span class="text-muted">N/A</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if fee.paid_date %}
+                        <i class="fas fa-check-circle text-success"></i> {{ fee.paid_date }}
+                    {% else %}
+                        <span class="text-muted">Not Paid</span>
+                    {% endif %}
+                </td>
                 <td>
                     {% if fee.is_overdue and fee.status == 'Pending' %}
-                        <span class="status-badge status-overdue">Overdue</span>
+                        <span class="status-badge status-overdue">
+                            <i class="fas fa-exclamation-triangle"></i> Overdue
+                        </span>
                     {% else %}
-                        <span class="status-badge status-{{ fee.status.lower() }}">{{ fee.status }}</span>
+                        <span class="status-badge status-{{ fee.status.lower() }}">
+                            {% if fee.status == 'Paid' %}
+                                <i class="fas fa-check"></i>
+                            {% elif fee.status == 'Pending' %}
+                                <i class="fas fa-clock"></i>
+                            {% endif %}
+                            {{ fee.status }}
+                        </span>
                     {% endif %}
-                </td>                <td class="table-actions">
-                    {% if fee.status != 'Paid' %}
-                    <form method="POST" action="{{ url_for('fee.mark_fee_paid', fee_id=fee.id) }}" class="inline-form" onsubmit="return confirm('Mark this fee as paid?');">
-                        <button type="submit" class="btn-action btn-success" title="Mark as Paid"><i class="fas fa-check-circle"></i></button>
-                    </form>
-                    {% endif %}
-                    {# Add edit fee button here if needed in the future #}
+                </td>
+                <td>                    <div class="action-buttons">
+                        {% if fee.status != 'Paid' %}
+                        <form method="POST" action="{{ url_for('fee.mark_fee_paid', fee_id=fee.id) }}" 
+                              class="inline-form" onsubmit="return confirm('Mark this fee as paid?');">
+                            <button type="submit" class="btn btn-action btn-success" title="Mark as Paid" aria-label="Mark fee #{{ fee.id }} as paid">
+                                <i class="fas fa-check-circle" aria-hidden="true"></i>
+                                <span class="sr-only">Mark as Paid</span>
+                            </button>
+                        </form>
+                        {% endif %}
+                          <button class="btn btn-action btn-info" onclick="viewFeeDetails('{{ fee.id }}')" title="View Details" aria-label="View details for fee #{{ fee.id }}">
+                            <i class="fas fa-eye" aria-hidden="true"></i>
+                            <span class="sr-only">View Details</span>
+                        </button>
+                        
+                        {% if fee.status != 'Paid' %}
+                        <button class="btn btn-action btn-warning" onclick="sendReminder('{{ fee.id }}')" title="Send Reminder" aria-label="Send payment reminder for fee #{{ fee.id }}">
+                            <i class="fas fa-bell" aria-hidden="true"></i>
+                            <span class="sr-only">Send Reminder</span>
+                        </button>
+                        {% endif %}
+                    </div>
                 </td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="7" class="text-center">No fee records found.</td>
+                <td colspan="7" class="no-data">
+                    <i class="fas fa-inbox fa-3x empty-state-icon"></i>
+                    <div>No fee records found. <a href="{{ url_for('fee.add_fee') }}">Add the first fee record</a></div>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+// Initialize optimized utilities for fee management
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize debounced filtering
+    OptimizedUtils.initializeFiltering({
+        searchInput: 'student_search',
+        statusFilter: 'status_filter',
+        tableBody: 'feeTableBody',
+        searchColumns: ['student'],
+        debounceDelay: 300
+    });
+    
+    // Initialize sorting for the table
+    OptimizedUtils.initializeSorting('feeTable');
+    
+    // Update stats on page load
+    updateStats();
+});
+
+// Custom functions specific to fee management
+function updateStats() {
+    const visibleRows = document.querySelectorAll('#feeTableBody tr:not([style*="display: none"])');
+    let paidCount = 0, pendingCount = 0, overdueCount = 0;
+    
+    visibleRows.forEach(row => {
+        if (row.cells.length === 1) return; // Skip "no data" row
+        
+        const status = row.dataset.status;
+        const isOverdue = row.classList.contains('overdue-row');
+        
+        if (status === 'Paid') paidCount++;
+        else if (status === 'Pending') pendingCount++;
+        if (isOverdue) overdueCount++;
+    });
+    
+    // Update stat cards
+    const paidElement = document.getElementById('paidCount');
+    const pendingElement = document.getElementById('pendingCount');
+    const overdueElement = document.getElementById('overdueCount');
+    
+    if (paidElement) paidElement.textContent = paidCount;
+    if (pendingElement) pendingElement.textContent = pendingCount;
+    if (overdueElement) overdueElement.textContent = overdueCount;
+}
+
+function clearFilters() {
+    document.getElementById('filterForm').reset();
+    OptimizedUtils.filterTable({
+        searchInput: 'student_search',
+        statusFilter: 'status_filter',
+        tableBody: 'feeTableBody',
+        searchColumns: ['student']
+    });
+    updateStats();
+}
+
+function toggleFilters() {
+    const filterContainer = document.querySelector('.filter-section');
+    OptimizedUtils.toggleElement(filterContainer);
+}
+
+function exportToCSV() {
+    OptimizedUtils.exportTableToCSV('feeTable', 'fee_records.csv', [6]); // Exclude actions column
+}
+
+function exportToPDF() {
+    window.open('{{ url_for("fee.export_fees", format="pdf") }}', '_blank');
+}
+
+function viewFeeDetails(feeId) {
+    // This could be enhanced to show a modal with detailed information
+    alert('Fee details for ID: ' + feeId + '\n(This will open detailed view)');
+}
+
+function sendReminder(feeId) {
+    if (confirm('Send payment reminder for this fee?')) {
+        fetch(`/fee/send_reminder/${feeId}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Reminder sent successfully!');
+                } else {
+                    alert('Failed to send reminder: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error sending reminder: ' + error);
+            });
+    }
+}
+
+// Custom sorting function that updates stats
+function sortTable(columnIndex) {
+    OptimizedUtils.sortTable('feeTable', columnIndex);
+    updateStats();
+}
+
+// Print optimization
+OptimizedUtils.setupPrintMode(['.filter-section', '.actions-header']);
+</script>
 {% endblock %}

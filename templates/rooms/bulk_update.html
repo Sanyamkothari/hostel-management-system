@@ -1,0 +1,259 @@
+{% extends "layout.html" %}
+
+{% block title %}Bulk Update Rooms - Hostel Management{% endblock %}
+{% block page_title %}
+    Bulk Update Room Status
+    {% if current_hostel_name %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/room-management.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/optimized-common.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="bulk-update-container">
+    <!-- Selection Summary -->
+    <div class="selection-summary selection-summary-hidden" id="selectionSummary">
+        <div class="selection-count" id="selectionCount">0</div>
+        <div>rooms selected for bulk update</div>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="search-filter-bar">
+        <div class="filter-group">
+            <label for="searchRooms">Search Rooms</label>
+            <input type="text" id="searchRooms" class="form-control" placeholder="Room number...">
+        </div>
+        <div class="filter-group">
+            <label for="filterStatus">Filter by Status</label>
+            <select id="filterStatus" class="form-control">
+                <option value="">All Statuses</option>
+                {% for status in available_statuses %}
+                <option value="{{ status }}">{{ status }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="filterCapacity">Filter by Capacity</label>
+            <select id="filterCapacity" class="form-control">
+                <option value="">Any Capacity</option>
+                {% for capacity in rooms|map(attribute='capacity')|unique|sort %}
+                <option value="{{ capacity }}">{{ capacity }} people</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>&nbsp;</label>
+            <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">
+                <i class="fas fa-times"></i> Clear
+            </button>
+        </div>
+    </div>
+
+    {% if rooms %}
+    <form method="post" id="bulkUpdateForm">
+        <!-- Room Selection Grid -->
+        <div class="room-selection-grid" id="roomGrid">
+            {% for room in rooms %}
+            <div class="room-select-card" 
+                 data-room-id="{{ room.id }}" 
+                 data-room-number="{{ room.room_number }}"
+                 data-status="{{ room.status }}"
+                 data-capacity="{{ room.capacity }}"                 data-occupancy="{{ room.current_occupancy }}"
+                 onclick="toggleRoomSelection(this)">
+                <label class="room-select-label" for="room_{{ room.id }}">
+                    <input type="checkbox" class="room-select-checkbox" name="room_ids" value="{{ room.id }}" id="room_{{ room.id }}" aria-label="Select Room {{ room.room_number }}">
+                </label>
+                <div class="room-select-content">
+                    <h6>Room {{ room.room_number }}</h6>
+                    <div class="room-select-details">
+                        <div>Capacity: {{ room.capacity }} people</div>
+                        <div>Occupancy: {{ room.current_occupancy }}/{{ room.capacity }}</div>
+                        {% if room.hostel_name %}
+                        <div>Hostel: {{ room.hostel_name }}</div>
+                        {% endif %}
+                    </div>
+                    <span class="room-select-status status-{{ room.status|lower }}">
+                        {{ room.status }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Bulk Action Form -->
+        <div class="bulk-action-form bulk-action-form-hidden" id="actionForm">
+            <div class="form-section">
+                <h5><i class="fas fa-cogs"></i> Bulk Update Settings</h5>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="new_status">New Status <span class="text-danger">*</span></label>
+                            <select name="new_status" id="new_status" class="form-control" required>
+                                <option value="">Select new status...</option>
+                                {% for status in available_statuses %}
+                                <option value="{{ status }}">{{ status }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="reason">Reason (Optional)</label>
+                            <input type="text" name="reason" id="reason" class="form-control" 
+                                   placeholder="Reason for status change...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Note:</strong> This action will update the status of all selected rooms. 
+                    Students in rooms will not be affected, but room availability may change.
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" class="btn btn-secondary" onclick="clearSelection()">
+                    <i class="fas fa-times"></i> Clear Selection
+                </button>
+                <button type="submit" class="btn btn-primary" onclick="return confirmBulkUpdate()">
+                    <i class="fas fa-save"></i> Update Selected Rooms
+                </button>
+            </div>
+        </div>
+    </form>
+
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-home"></i>
+        <h3>No Rooms Available</h3>
+        <p>There are no rooms available for bulk update in the selected hostel.</p>
+        <a href="{{ url_for('room.add_room') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Room
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="mt-4 text-center">
+        <a href="{{ url_for('room.view_rooms') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Back to Room Management
+        </a>
+        <a href="{{ url_for('room.add_room') }}" class="btn btn-outline-success">
+            <i class="fas fa-plus"></i> Add New Room
+        </a>
+    </div>
+</div>
+
+<script>
+let selectedRooms = new Set();
+
+function toggleRoomSelection(card) {
+    const checkbox = card.querySelector('.room-select-checkbox');
+    const roomId = card.dataset.roomId;
+    
+    // Toggle selection
+    if (selectedRooms.has(roomId)) {
+        selectedRooms.delete(roomId);
+        card.classList.remove('selected');
+        checkbox.checked = false;
+    } else {
+        selectedRooms.add(roomId);
+        card.classList.add('selected');
+        checkbox.checked = true;
+    }
+    
+    updateSelectionDisplay();
+}
+
+function updateSelectionDisplay() {
+    const count = selectedRooms.size;
+    const summary = document.getElementById('selectionSummary');
+    const countDisplay = document.getElementById('selectionCount');
+    const actionForm = document.getElementById('actionForm');
+    
+    countDisplay.textContent = count;
+    
+    if (count > 0) {
+        summary.style.display = 'block';
+        actionForm.style.display = 'block';
+    } else {
+        summary.style.display = 'none';
+        actionForm.style.display = 'none';
+    }
+}
+
+function clearSelection() {
+    selectedRooms.clear();
+    document.querySelectorAll('.room-select-card').forEach(card => {
+        card.classList.remove('selected');
+        card.querySelector('.room-select-checkbox').checked = false;
+    });
+    updateSelectionDisplay();
+}
+
+function confirmBulkUpdate() {
+    const count = selectedRooms.size;
+    const newStatus = document.getElementById('new_status').value;
+    
+    if (count === 0) {
+        alert('Please select at least one room to update.');
+        return false;
+    }
+    
+    if (!newStatus) {
+        alert('Please select a new status for the rooms.');
+        return false;
+    }
+    
+    return confirm(`Are you sure you want to update ${count} room(s) to status "${newStatus}"?`);
+}
+
+// Filter functionality
+function filterRooms() {
+    const searchTerm = document.getElementById('searchRooms').value.toLowerCase();
+    const statusFilter = document.getElementById('filterStatus').value;
+    const capacityFilter = document.getElementById('filterCapacity').value;
+    
+    document.querySelectorAll('.room-select-card').forEach(card => {
+        const roomNumber = card.dataset.roomNumber.toLowerCase();
+        const status = card.dataset.status;
+        const capacity = card.dataset.capacity;
+        
+        const matchesSearch = roomNumber.includes(searchTerm);
+        const matchesStatus = !statusFilter || status === statusFilter;
+        const matchesCapacity = !capacityFilter || capacity === capacityFilter;
+        
+        if (matchesSearch && matchesStatus && matchesCapacity) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function clearFilters() {
+    document.getElementById('searchRooms').value = '';
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('filterCapacity').value = '';
+    filterRooms();
+}
+
+// Event listeners for filters
+document.getElementById('searchRooms').addEventListener('input', filterRooms);
+document.getElementById('filterStatus').addEventListener('change', filterRooms);
+document.getElementById('filterCapacity').addEventListener('change', filterRooms);
+
+// Prevent form submission when clicking on checkbox
+document.querySelectorAll('.room-select-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+});
+</script>
+{% endblock %}

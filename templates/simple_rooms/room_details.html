@@ -1,0 +1,197 @@
+{% extends "layout.html" %}
+
+{% block title %}Room {{ room.room_number }} - Details{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/optimized-common.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Room Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>Room {{ room.room_number }}</h2>
+                    {% if room.hostel_name %}
+                        <p class="text-muted mb-0">{{ room.hostel_name }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <a href="{{ url_for('simple_room.edit_room', room_id=room.id) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-edit"></i> Edit Room
+                    </a>
+                    <a href="{{ url_for('simple_room.view_rooms') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Rooms
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Room Information Cards -->
+    <div class="row mb-4">
+        <!-- Basic Info Card -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle"></i> Room Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Room Number:</strong></td>
+                            <td>{{ room.room_number }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Capacity:</strong></td>
+                            <td>{{ room.capacity }} students</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Current Occupancy:</strong></td>
+                            <td>{{ room.current_occupancy }} students</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Available Spots:</strong></td>
+                            <td>{{ room.capacity - room.current_occupancy }} students</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status:</strong></td>
+                            <td>
+                                {% if room.status == 'Available' %}
+                                    <span class="badge bg-success">{{ room.status }}</span>
+                                {% elif room.status == 'Full' %}
+                                    <span class="badge bg-info">{{ room.status }}</span>
+                                {% elif room.status == 'Maintenance' %}
+                                    <span class="badge bg-warning">{{ room.status }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ room.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% if room.hostel_name %}
+                        <tr>
+                            <td><strong>Hostel:</strong></td>
+                            <td>{{ room.hostel_name }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Occupancy Visualization -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie"></i> Occupancy Overview
+                    </h5>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <div class="text-center">
+                        <!-- Occupancy Circle -->
+                        <div class="position-relative d-inline-block mb-3">
+                            <svg width="150" height="150" class="occupancy-circle">
+                                <circle cx="75" cy="75" r="60" 
+                                        stroke="#e9ecef" stroke-width="12" fill="none"/>
+                                <circle cx="75" cy="75" r="60" 
+                                        stroke="{% if room.occupancy_percentage == 100 %}#17a2b8{% elif room.occupancy_percentage > 75 %}#ffc107{% else %}#28a745{% endif %}" 
+                                        stroke-width="12" 
+                                        fill="none"
+                                        stroke-dasharray="377" 
+                                        stroke-dashoffset="{{ 377 - (377 * room.occupancy_percentage / 100) }}"
+                                        stroke-linecap="round"
+                                        transform="rotate(-90 75 75)"/>
+                            </svg>
+                            <div class="position-absolute top-50 start-50 translate-middle">
+                                <h3 class="mb-0">{{ room.occupancy_percentage }}%</h3>
+                                <small class="text-muted">Occupied</small>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="mb-1"><strong>{{ room.current_occupancy }}</strong> of <strong>{{ room.capacity }}</strong> spots filled</p>
+                            {% if room.capacity - room.current_occupancy > 0 %}
+                                <p class="text-success mb-0">
+                                    <i class="fas fa-check-circle"></i> {{ room.capacity - room.current_occupancy }} spots available
+                                </p>
+                            {% else %}
+                                <p class="text-info mb-0">
+                                    <i class="fas fa-home"></i> Room is full
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Occupants Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-users"></i> Room Occupants ({{ occupants|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if occupants %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Student ID</th>
+                                        <th>Course</th>
+                                        <th>Contact</th>
+                                        <th>Email</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in occupants %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle me-2">
+                                                    {{ student.name[0].upper() }}
+                                                </div>
+                                                {{ student.name }}
+                                            </div>
+                                        </td>
+                                        <td>{{ student.student_id_number }}</td>
+                                        <td>{{ student.course }}</td>
+                                        <td>{{ student.contact }}</td>
+                                        <td>{{ student.email }}</td>
+                                        <td>                                            <a href="{{ url_for('student.view_student', student_id=student.id) }}" 
+                                               class="btn btn-sm btn-outline-primary" title="View Student">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No occupants</h5>
+                            <p class="text-muted">This room is currently empty.</p>
+                            {% if room.status == 'Available' %}                                <a href="{{ url_for('student.add_student') }}?room_id={{ room.id }}" 
+                                   class="btn btn-primary">
+                                    <i class="fas fa-user-plus"></i> Assign Student
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>    </div>
+</div>
+{% endblock %}

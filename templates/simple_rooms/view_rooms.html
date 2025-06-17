@@ -1,0 +1,265 @@
+{% extends "layout.html" %}
+
+{% block title %}Rooms - Simple Management{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/optimized-common.css') }}">
+<script src="{{ url_for('static', filename='js/optimized-utils.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>Room Management</h2>
+                    {% if current_hostel_name %}
+                        <p class="text-muted mb-0">{{ current_hostel_name }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <a href="{{ url_for('simple_room.add_room') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Room
+                    </a>
+                    <a href="{{ url_for('simple_room.available_rooms') }}" class="btn btn-success">
+                        <i class="fas fa-door-open"></i> Available Rooms
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hostel Selection for Owners -->
+    {% if user_role == 'owner' and hostels_list %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Select Hostel</h5>
+                    <form method="GET" class="d-flex align-items-end gap-3">
+                        <div class="flex-grow-1">
+                            <label for="hostel_id" class="form-label">Hostel</label>
+                            <select name="hostel_id" id="hostel_id" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Hostels</option>
+                                {% for hostel in hostels_list %}
+                                    <option value="{{ hostel.id }}" 
+                                        {% if request.args.get('hostel_id', type=int) == hostel.id %}selected{% endif %}>
+                                        {{ hostel.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Statistics Cards -->
+    {% if stats %}
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Total Rooms</h5>
+                            <h3>{{ stats.total_rooms or 0 }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-home fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Available</h5>
+                            <h3>{{ stats.available_rooms or 0 }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-door-open fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Full Rooms</h5>
+                            <h3>{{ stats.full_rooms or 0 }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-door-closed fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Maintenance</h5>
+                            <h3>{{ stats.maintenance_rooms or 0 }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-tools fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Occupancy Overview -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Overall Occupancy</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Total Capacity:</strong> {{ stats.total_capacity or 0 }} students</p>
+                            <p><strong>Current Occupancy:</strong> {{ stats.current_occupancy or 0 }} students</p>
+                            <p><strong>Available Spots:</strong> {{ stats.available_spots or 0 }} students</p>
+                        </div>                        <div class="col-md-6">
+                            <div class="progress progress-height-large">
+                                <div class="progress-bar" 
+                                     role="progressbar" 
+                                     aria-valuenow="0"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100"
+                                     aria-label="Overall occupancy rate"
+                                     data-width="{{ stats.occupancy_percentage or 0 }}">
+                                    {{ stats.occupancy_percentage or 0 }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Rooms Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">All Rooms</h5>
+                </div>
+                <div class="card-body">
+                    {% if rooms %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Room Number</th>
+                                        <th>Capacity</th>
+                                        <th>Occupancy</th>
+                                        <th>Status</th>
+                                        <th>Occupancy %</th>
+                                        {% if user_role == 'owner' %}
+                                        <th>Hostel</th>
+                                        {% endif %}
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for room in rooms %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ url_for('simple_room.view_room', room_id=room.id) }}" 
+                                               class="text-decoration-none">
+                                                {{ room.room_number }}
+                                            </a>
+                                        </td>
+                                        <td>{{ room.capacity }}</td>
+                                        <td>{{ room.current_occupancy }} / {{ room.capacity }}</td>
+                                        <td>
+                                            {% if room.status == 'Available' %}
+                                                <span class="badge bg-success">{{ room.status }}</span>
+                                            {% elif room.status == 'Full' %}
+                                                <span class="badge bg-info">{{ room.status }}</span>
+                                            {% elif room.status == 'Maintenance' %}
+                                                <span class="badge bg-warning">{{ room.status }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ room.status }}</span>
+                                            {% endif %}
+                                        </td>                                        <td>                                            <div class="progress progress-compact">
+                                                <div class="progress-bar 
+                                                    {% if room.occupancy_percentage == 100 %}bg-info
+                                                    {% elif room.occupancy_percentage > 75 %}bg-warning
+                                                    {% else %}bg-success{% endif %}" 
+                                                     role="progressbar" 
+                                                     aria-valuenow="0"
+                                                     aria-valuemin="0"
+                                                     aria-valuemax="100"
+                                                     data-width="{{ room.occupancy_percentage }}"
+                                                     aria-label="Room occupancy {{ room.occupancy_percentage }}%">
+                                                    {{ room.occupancy_percentage }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        {% if user_role == 'owner' %}
+                                        <td>{{ room.hostel_name or 'N/A' }}</td>
+                                        {% endif %}
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ url_for('simple_room.view_room', room_id=room.id) }}" 
+                                                   class="btn btn-outline-primary" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ url_for('simple_room.edit_room', room_id=room.id) }}" 
+                                                   class="btn btn-outline-secondary" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>                                                <form method="POST" 
+                                                      action="{{ url_for('simple_room.delete_room', room_id=room.id) }}" 
+                                                      class="inline-form"
+                                                      onsubmit="return confirm('Are you sure you want to delete room {{ room.room_number }}?')">>
+                                                    <button type="submit" class="btn btn-outline-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-home fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No rooms found</h4>
+                            <p class="text-muted">Start by adding your first room.</p>
+                            <a href="{{ url_for('simple_room.add_room') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Room
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize progress bars with proper width and accessibility
+    initializeProgressBars();
+});
+</script>
+{% endblock %}

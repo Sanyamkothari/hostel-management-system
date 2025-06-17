@@ -1,7 +1,12 @@
 {% extends "layout.html" %}
 
 {% block title %}Edit Student - Hostel Management{% endblock %}
-{% block page_title %}Edit Student: {{ student.name }}{% endblock %}
+{% block page_title %}
+    Edit Student: {{ student.name }}
+    {% if current_hostel_name and g.user.role == 'manager' %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="form-container">
@@ -9,6 +14,25 @@
         <!-- Basic Information Section -->
         <div class="form-section">
             <h3><i class="fas fa-user"></i> Basic Information</h3>
+            
+            {% if g.user.role == 'owner' %}
+            <div class="form-group">
+                <label for="hostel_id"><i class="fas fa-hotel"></i> Hostel:</label>
+                <select name="hostel_id" id="hostel_id" class="form-control" required>
+                    {% for hostel in hostels_list %}
+                        <option value="{{ hostel.id }}" {% if student.hostel_id == hostel.id %}selected{% endif %}>
+                            {{ hostel.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <small class="form-text text-muted">
+                    Changing a student's hostel will remove their room assignment and may affect fee records.
+                </small>
+            </div>
+            {% else %}
+                <input type="hidden" name="hostel_id" value="{{ student.hostel_id }}">
+            {% endif %}
+            
             <div class="form-group">
                 <label for="name">Full Name:</label>
                 <input type="text" id="name" name="name" required value="{{ student.name }}">
@@ -125,50 +149,7 @@
         </div>
           <div class="form-actions">
             <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update Student</button>
-            <a href="{{ url_for('student.view_students') }}" class="btn btn-secondary"><i class="fas fa-times-circle"></i> Cancel</a>
-        </div>
+            <a href="{{ url_for('student.view_students') }}" class="btn btn-secondary"><i class="fas fa-times-circle"></i> Cancel</a>        </div>
     </form>
 </div>
-
-<style>
-.form-section {
-    margin-bottom: 30px;
-    padding: 20px;
-    background: #f9f9f9;
-    border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-.form-section h3 {
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #ddd;
-    color: #333;
-}
-.row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -15px;
-    margin-left: -15px;
-}
-.col-md-4, .col-md-6, .col-md-12 {
-    position: relative;
-    width: 100%;
-    padding-right: 15px;
-    padding-left: 15px;
-}
-@media (min-width: 768px) {
-    .col-md-4 {
-        flex: 0 0 33.333333%;
-        max-width: 33.333333%;
-    }
-    .col-md-6 {
-        flex: 0 0 50%;
-        max-width: 50%;
-    }
-    .col-md-12 {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
-}
-</style>
 {% endblock %}

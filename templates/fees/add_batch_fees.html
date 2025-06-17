@@ -2,16 +2,61 @@
 
 {% block title %}Batch Fee Payment - Hostel Management{% endblock %}
 
-{% block page_title %}Batch Fee Payment Processing{% endblock %}
+{% block page_title %}
+    Batch Fee Payment Processing
+    {% if current_hostel_name and g.user.role == 'manager' %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
+    {% if g.user.role == 'owner' and not selected_hostel_id %}
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle"></i> Please select a hostel first to manage batch fee payments.
+    </div>
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="card-title mb-0">Add Fees for Multiple Students</h5>
+            <h5 class="card-title mb-0">Select Hostel</h5>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('fee.add_batch_fees') }}" method="get">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="hostel_id" class="form-label">Hostel</label>
+                        <select class="form-select" id="hostel_id" name="hostel_id" required>
+                            <option value="">-- Select Hostel --</option>
+                            {% for hostel in hostels_list %}
+                                <option value="{{ hostel.id }}">{{ hostel.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">Continue</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                Add Fees for Multiple Students
+                {% if g.user.role == 'owner' and current_hostel_name %}
+                    <span class="text-muted fs-6"> - {{ current_hostel_name }}</span>
+                    <a href="{{ url_for('fee.add_batch_fees') }}" class="btn btn-sm btn-outline-secondary ms-2">
+                        <i class="fas fa-exchange-alt"></i> Change Hostel
+                    </a>
+                {% endif %}
+            </h5>
         </div>
         <div class="card-body">
             <form action="{{ url_for('fee.add_batch_fees') }}" method="post">
+                {% if g.user.role == 'owner' and selected_hostel_id %}
+                <input type="hidden" name="hostel_id" value="{{ selected_hostel_id }}">
+                {% endif %}
+                
                 <div class="row mb-3">
                     <div class="col-md-6">                        <label for="amount" class="form-label">Fee Amount</label>
                         <div class="input-group">
@@ -38,12 +83,17 @@
                             <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all">Deselect All</button>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
+                    <div class="card-body">                        <div class="row mb-3">
                             <div class="col-md-4">
-                                <input type="text" class="form-control" id="student-search" placeholder="Search students..." title="Search for students by name">
+                                <label for="student-search" class="form-label">Search Students</label>
+                                <input type="text" class="form-control" id="student-search" 
+                                       placeholder="Search students..." 
+                                       title="Search for students by name"
+                                       aria-label="Search for students by name">
                             </div>
-                            <div class="col-md-4">                                <select class="form-select" id="course-filter" title="Filter students by course">
+                            <div class="col-md-4">
+                                <label for="course-filter" class="form-label">Filter by Course</label>
+                                <select class="form-select" id="course-filter" title="Filter students by course">
                                     <option value="">All Courses</option>
                                     {% for course in courses %}
                                     <option value="{{ course }}">{{ course }}</option>
@@ -101,6 +151,7 @@
             </form>
         </div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
 

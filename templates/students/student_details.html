@@ -69,14 +69,19 @@
                                 <span>Admission Date</span>
                             </div>
                             <div class="info-value">{{ student.admission_date }}</div>
-                        </div>
-                        {% if student.expected_checkout_date %}
+                        </div>                        {% if student.expected_checkout_date %}
                         <div class="info-item">
                             <div class="info-label">
                                 <i class="fas fa-calendar-times"></i>
                                 <span>Expected Checkout</span>
                             </div>
-                            <div class="info-value">{{ student.expected_checkout_date }}</div>
+                            <div class="info-value">
+                                {% if student.expected_checkout_date is string %}
+                                    {{ student.expected_checkout_date }}
+                                {% else %}
+                                    {{ student.expected_checkout_date }}
+                                {% endif %}
+                            </div>
                         </div>
                         {% endif %}
                     </div>
@@ -231,7 +236,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>                                        {% for fee in fees %}
-                                        <tr class="{% if fee.status == 'Pending' and fee.due_date < current_date %}table-danger{% elif fee.status == 'Pending' %}table-warning{% elif fee.status == 'Paid' %}table-success{% endif %}">
+                                        <tr class="{% if fee.status == 'Pending' and fee.is_overdue %}table-danger{% elif fee.status == 'Pending' %}table-warning{% elif fee.status == 'Paid' %}table-success{% endif %}">
                                             <td>{{ fee.created_date or '-' }}</td>
                                             <td>{{ fee.due_date_formatted or '-' }}</td>
                                             <td>{{ format_currency(fee.amount) }}</td>
@@ -252,9 +257,8 @@
                                                         <i class="fas fa-check"></i> Mark Paid
                                                     </button>
                                                 </form>
-                                                {% endif %}
-                                                <a href="{{ url_for('fee.edit_fee', fee_id=fee.id) }}" class="btn btn-sm btn-warning">
-                                                    <i class="fas fa-edit"></i>
+                                                {% endif %}                                                <a href="{{ url_for('fee.edit_fee', fee_id=fee.id) }}" class="btn btn-sm btn-warning" title="Edit fee">
+                                                    <i class="fas fa-edit"></i> <span class="sr-only">Edit</span>
                                                 </a>
                                             </td>
                                         </tr>
@@ -310,16 +314,20 @@
                                     </div>
                                 </div>
                                 {% endfor %}
-                                {% endif %}
-                                
-                                {% if student.expected_checkout_date and student.expected_checkout_date > current_date %}
+                                {% endif %}                                {% if student.expected_checkout_date %}
                                 <div class="timeline-item">
                                     <div class="timeline-marker bg-info">
                                         <i class="fas fa-calendar-check"></i>
                                     </div>
                                     <div class="timeline-content">
                                         <h5 class="timeline-title">Expected Checkout</h5>
-                                        <p class="timeline-date">{{ student.expected_checkout_date }}</p>
+                                        <p class="timeline-date">
+                                            {% if student.expected_checkout_date is string %}
+                                                {{ student.expected_checkout_date }}
+                                            {% else %}
+                                                {{ student.expected_checkout_date }}
+                                            {% endif %}
+                                        </p>
                                     </div>
                                 </div>
                                 {% endif %}

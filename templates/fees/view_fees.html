@@ -121,7 +121,7 @@
                                                 <i class="fas fa-edit"></i>
                                             </a> #}
                                             {% set delete_url = url_for('fee.delete_fee', fee_id=fee.id) %}
-                                            <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete('{{ delete_url }}')">
+                                            <button type="button" class="btn btn-sm btn-danger" title="Delete Fee" onclick="confirmDelete('{{ delete_url }}')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>

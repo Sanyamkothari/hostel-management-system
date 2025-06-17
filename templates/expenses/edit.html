@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+
+{% block title %}Edit Expense - Hostel Management{% endblock %}
+
+{% block page_title %}
+    Edit Expense
+    {% if current_hostel_name and g.user.role == 'manager' %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <form method="post" action="{{ url_for('expense.edit_expense', expense_id=expense.id) }}" class="styled-form">
+        
+        <div class="row">
+            <!-- Basic Information -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="description">Description <span class="text-danger">*</span></label>
+                    <input type="text" name="description" id="description" class="form-control" 
+                           value="{{ expense.description }}" placeholder="Enter expense description" required>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="amount">Amount (₹) <span class="text-danger">*</span></label>
+                    <input type="number" name="amount" id="amount" class="form-control" 
+                           value="{{ expense.amount }}" placeholder="0.00" step="0.01" min="0" required>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="expense_date">Expense Date <span class="text-danger">*</span></label>
+                    <input type="date" name="expense_date" id="expense_date" class="form-control" 
+                           value="{{ expense.expense_date }}" required>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="category">Category <span class="text-danger">*</span></label>
+                    <select name="category" id="category" class="form-control" required>
+                        <option value="">Select Category</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}" {% if cat == expense.category %}selected{% endif %}>
+                            {{ cat }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="expense_type">Expense Type <span class="text-danger">*</span></label>
+                    <select name="expense_type" id="expense_type" class="form-control" required>
+                        <option value="">Select Type</option>
+                        {% for type in expense_types %}
+                        <option value="{{ type }}" {% if type == expense.expense_type %}selected{% endif %}>
+                            {{ type }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="payment_method">Payment Method <span class="text-danger">*</span></label>
+                    <select name="payment_method" id="payment_method" class="form-control" required>
+                        <option value="">Select Payment Method</option>
+                        {% for method in payment_methods %}
+                        <option value="{{ method }}" {% if method == expense.payment_method %}selected{% endif %}>
+                            {{ method }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Optional Information -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="vendor_name">Vendor/Supplier Name</label>
+                    <input type="text" name="vendor_name" id="vendor_name" class="form-control" 
+                           value="{{ expense.vendor_name or '' }}" placeholder="Enter vendor name">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="receipt_number">Receipt/Invoice Number</label>
+                    <input type="text" name="receipt_number" id="receipt_number" class="form-control" 
+                           value="{{ expense.receipt_number or '' }}" placeholder="Enter receipt number">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="approved_by">Approved By</label>
+                    <input type="text" name="approved_by" id="approved_by" class="form-control" 
+                           value="{{ expense.approved_by or '' }}" placeholder="Enter approver name">
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea name="notes" id="notes" class="form-control" rows="3" 
+                              placeholder="Additional notes or comments">{{ expense.notes or '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Update Expense
+            </button>
+            <a href="{{ url_for('expense.view_expense', expense_id=expense.id) }}" class="btn btn-outline-info">
+                <i class="fas fa-eye"></i> View Details
+            </a>
+            <a href="{{ url_for('expense.list_expenses') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Category-based suggestions for expense type
+    const categorySelect = document.getElementById('category');
+    const typeSelect = document.getElementById('expense_type');
+    
+    const categoryTypeMapping = {
+        'Maintenance': 'Operational',
+        'Utilities': 'Operational',
+        'Food': 'Operational',
+        'Supplies': 'Operational',
+        'Staff': 'Operational',
+        'Security': 'Operational',
+        'Cleaning': 'Operational',
+        'Internet': 'Operational'
+    };
+    
+    categorySelect.addEventListener('change', function() {
+        const selectedCategory = this.value;
+        if (selectedCategory && categoryTypeMapping[selectedCategory] && !typeSelect.value) {
+            typeSelect.value = categoryTypeMapping[selectedCategory];
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -66,9 +66,28 @@
                 <td>{{ fee.id }}</td>
                 <td><a href="{{ url_for('student.edit_student', student_id=fee.student_id_fk) }}">{{ fee.student_name }}</a></td>
                 <td>{{ fee.student_id_number }}</td>
-                <td>₹{{ "%.2f"|format(fee.amount) }}</td>
-                <td>{{ fee.due_date.strftime('%Y-%m-%d') }}</td>
-                <td>{{ fee.payment_date.strftime('%Y-%m-%d') if fee.payment_date else 'N/A' }}</td>
+                <td>₹{{ "%.2f"|format(fee.amount) }}</td>                <td>
+                    {% if fee.due_date %}
+                        {% if fee.due_date is string %}
+                            {{ fee.due_date }}
+                        {% else %}
+                            {{ fee.due_date.strftime('%Y-%m-%d') }}
+                        {% endif %}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td>
+                    {% if fee.payment_date %}
+                        {% if fee.payment_date is string %}
+                            {{ fee.payment_date }}
+                        {% else %}
+                            {{ fee.payment_date.strftime('%Y-%m-%d') }}
+                        {% endif %}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
                 <td>
                     <span class="status-badge status-{{ fee.status.lower() }} {% if fee.is_overdue and fee.status != 'Paid' %}status-overdue{% endif %}">
                         {{ fee.status }}

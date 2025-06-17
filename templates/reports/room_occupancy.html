@@ -4,129 +4,6 @@
 
 {% block page_title %}Room Occupancy Report{% endblock %}
 
-{% block extra_head %}
-<style>
-    .room-occupancy-container {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-    
-    .room-card {
-        background-color: white;
-        border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        padding: 20px;
-        margin-bottom: 15px;
-    }
-    
-    .room-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-    
-    .room-number {
-        font-size: 1.4rem;
-        font-weight: bold;
-    }
-    
-    .room-status {
-        padding: 5px 10px;
-        border-radius: 3px;
-        font-weight: bold;
-    }
-    
-    .status-available {
-        background-color: #d4edda;
-        color: #155724;
-    }
-    
-    .status-full {
-        background-color: #cce5ff;
-        color: #004085;
-    }
-    
-    .status-maintenance {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-    
-    .occupancy-bar {
-        height: 20px;
-        background-color: #e9ecef;
-        border-radius: 10px;
-        margin-bottom: 10px;
-        overflow: hidden;
-    }
-    
-    .occupancy-fill {
-        height: 100%;
-        background-color: #007bff;
-        border-radius: 10px;
-    }
-    
-    .occupancy-text {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 15px;
-    }
-    
-    .student-list {
-        margin-top: 15px;
-    }
-    
-    .student-list h4 {
-        margin-bottom: 10px;
-        padding-bottom: 5px;
-        border-bottom: 1px solid #dee2e6;
-    }
-    
-    .student-item {
-        padding: 8px;
-        border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .student-item:last-child {
-        border-bottom: none;
-    }
-    
-    .report-summary {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-    
-    .summary-item {
-        padding: 15px;
-        border-radius: 5px;
-        text-align: center;
-        background-color: white;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    
-    .summary-item h3 {
-        margin-top: 0;
-        font-size: 1.2rem;
-    }
-    
-    .summary-item p {
-        font-size: 1.8rem;
-        font-weight: bold;
-        margin: 10px 0;
-    }
-    
-    .export-options {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 20px;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="room-occupancy-container">
     <!-- Summary Section -->
@@ -166,7 +43,7 @@
         </div>
         
         <div class="occupancy-bar">
-            <div class="occupancy-fill" style="width: {{ room.occupancy_percentage }}%;"></div>
+            <div class="occupancy-fill" data-progress-width="{{ room.occupancy_percentage }}"></div>
         </div>
         
         <div class="occupancy-text">
