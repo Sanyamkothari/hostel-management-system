@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block title %}Setup Your First Hostel{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Welcome to Multi-Hostel Management System</h3>
+                </div>
+                <div class="card-body">
+                    <h4>Setup Your First Hostel</h4>
+                    <p class="lead">
+                        To get started, please create your first hostel property below.
+                    </p>
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Hostel Name *</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address *</label>
+                            <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="contact_number" class="form-label">Contact Number</label>
+                            <input type="text" class="form-control" id="contact_number" name="contact_number">
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Create Hostel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

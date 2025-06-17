@@ -1,0 +1,8 @@
+/* Fixed styles for Room Management */
+.d-inline {
+    display: inline !important;
+}
+
+form.d-inline {
+    display: inline !important;
+}

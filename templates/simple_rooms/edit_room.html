@@ -1,0 +1,139 @@
+{% extends "layout.html" %}
+
+{% block title %}Edit Room - Simple Management{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Edit Room {{ room.room_number }}</h4>
+                    {% if room.hostel_name %}
+                        <small class="text-muted">{{ room.hostel_name }}</small>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <!-- Room Number -->
+                        <div class="mb-3">
+                            <label for="room_number" class="form-label">Room Number <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="room_number" 
+                                   name="room_number" 
+                                   value="{{ room.room_number }}"
+                                   required>
+                            <div class="form-text">Enter a unique room number for this hostel.</div>
+                        </div>
+
+                        <!-- Capacity -->
+                        <div class="mb-3">
+                            <label for="capacity" class="form-label">Capacity <span class="text-danger">*</span></label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="capacity" 
+                                   name="capacity" 
+                                   value="{{ room.capacity }}"
+                                   min="{{ room.current_occupancy }}" 
+                                   max="20"
+                                   required>
+                            <div class="form-text">
+                                Minimum capacity: {{ room.current_occupancy }} (current occupancy)<br>
+                                Maximum capacity: 20 students
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                {% for status in statuses %}
+                                    <option value="{{ status }}" 
+                                        {% if status == room.status %}selected{% endif %}>
+                                        {{ status }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">
+                                <strong>Available:</strong> Ready for student assignment<br>
+                                <strong>Maintenance:</strong> Under repair or renovation<br>
+                                <strong>Full:</strong> At maximum capacity (auto-managed)
+                            </div>
+                        </div>
+
+                        <!-- Current Occupancy Info -->
+                        {% if room.current_occupancy > 0 %}
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> Current Occupancy</h6>
+                            <p class="mb-0">
+                                This room currently has <strong>{{ room.current_occupancy }}</strong> student(s). 
+                                The capacity cannot be set below this number.
+                            </p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('simple_room.view_rooms') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Rooms
+                            </a>
+                            <div>
+                                <a href="{{ url_for('simple_room.view_room', room_id=room.id) }}" class="btn btn-info me-2">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Room Statistics -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-chart-bar"></i> Room Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h5 class="text-primary">{{ room.capacity }}</h5>
+                                <small class="text-muted">Total Capacity</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h5 class="text-info">{{ room.current_occupancy }}</h5>
+                                <small class="text-muted">Current Occupancy</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h5 class="text-success">{{ room.capacity - room.current_occupancy }}</h5>
+                                <small class="text-muted">Available Spots</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h5 class="text-warning">
+                                    {% if room.capacity > 0 %}
+                                        {{ ((room.current_occupancy / room.capacity) * 100) | round(1) }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </h5>
+                                <small class="text-muted">Occupancy Rate</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

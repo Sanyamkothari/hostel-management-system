@@ -1,0 +1,386 @@
+{% extends "layout.html" %}
+
+{% block title %}Room {{ room.room_number }} Details - Hostel Management{% endblock %}
+
+{% block page_title %}
+    Room {{ room.room_number }} Details
+    {% if room.hostel_name %}
+        <span class="text-muted fs-5"> - {{ room.hostel_name }}</span>
+    {% endif %}
+{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/room-management.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/optimized-common.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="room-details-container">
+    
+    <!-- Room Overview Cards -->
+    <div class="room-overview-cards">
+        <div class="overview-card status-{{ room.status|lower }}">
+            <div class="overview-number">{{ room.room_number }}</div>
+            <div class="overview-label">Room Number</div>
+        </div>
+        <div class="overview-card">
+            <div class="overview-number">{{ room.capacity }}</div>
+            <div class="overview-label">Total Capacity</div>
+        </div>
+        <div class="overview-card">
+            <div class="overview-number">{{ room.current_occupancy }}</div>
+            <div class="overview-label">Current Occupancy</div>
+        </div>
+        <div class="overview-card">
+            <div class="overview-number">{{ room.capacity - room.current_occupancy }}</div>
+            <div class="overview-label">Available Spots</div>
+        </div>
+    </div>
+
+    <!-- Room Status Notices -->
+    {% if room.status == 'Maintenance' %}
+    <div class="emergency-notice">
+        <strong><i class="fas fa-exclamation-triangle"></i> Maintenance Required</strong><br>
+        This room is currently under maintenance and may not be available for new assignments.
+    </div>
+    {% elif room.status == 'Out-of-Order' %}
+    <div class="emergency-notice">
+        <strong><i class="fas fa-ban"></i> Room Out of Order</strong><br>
+        This room is temporarily out of service and cannot accommodate students.
+    </div>
+    {% elif room.current_occupancy == 0 %}
+    <div class="success-notice">
+        <strong><i class="fas fa-check-circle"></i> Room Available</strong><br>
+        This room is completely available and ready for student assignments.
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <div class="room-content">
+        
+        <!-- Main Information -->
+        <div class="main-info">
+            
+            <!-- Basic Details -->
+            <div class="section-title">
+                <i class="fas fa-info-circle"></i> Room Information
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Room Number</span>
+                <span class="detail-value">{{ room.room_number }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Status</span>
+                <span class="detail-value">
+                    <span class="status-badge status-{{ room.status|lower }}">{{ room.status }}</span>
+                </span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Capacity</span>
+                <span class="detail-value">{{ room.capacity }} people</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Current Occupancy</span>
+                <span class="detail-value">{{ room.current_occupancy }} people</span>
+            </div>
+            
+            {% if room.hostel_name %}
+            <div class="detail-row">
+                <span class="detail-label">Hostel</span>
+                <span class="detail-value">{{ room.hostel_name }}</span>
+            </div>
+            {% endif %}
+            
+            {% if room.floor %}
+            <div class="detail-row">
+                <span class="detail-label">Floor</span>
+                <span class="detail-value">{{ room.floor }}</span>
+            </div>
+            {% endif %}
+            
+            {% if room.room_type %}
+            <div class="detail-row">
+                <span class="detail-label">Room Type</span>
+                <span class="detail-value">{{ room.room_type }}</span>
+            </div>
+            {% endif %}
+            
+            {% if room.facilities %}
+            <div class="detail-row">
+                <span class="detail-label">Facilities</span>
+                <span class="detail-value">{{ room.facilities }}</span>
+            </div>
+            {% endif %}
+            
+            {% if room.description %}
+            <div class="detail-row">
+                <span class="detail-label">Description</span>
+                <span class="detail-value">{{ room.description }}</span>
+            </div>
+            {% endif %}            <!-- Occupancy Visualization -->
+            <div class="occupancy-visual">
+                <div class="font-weight-600 margin-bottom-8 text-center">
+                    Occupancy Status
+                </div>
+                <div class="occupancy-bar">
+                    {% set occupancy_percent = (room.current_occupancy / room.capacity * 100) if room.capacity > 0 else 0 %}
+                    <div class="occupancy-fill 
+                                {% if occupancy_percent >= 100 %}progress-fill-full
+                                {% elif occupancy_percent >= 80 %}progress-fill-warning
+                                {% else %}progress-fill-available{% endif %}" 
+                         data-width="{{ occupancy_percent }}">
+                    </div>
+                </div>
+                <div class="occupancy-text">
+                    {{ room.current_occupancy }}/{{ room.capacity }} occupied ({{ occupancy_percent|round(1) }}%)
+                </div>
+            </div>
+
+            <!-- Students Section -->
+            <div class="section-title section-title-spaced">
+                <i class="fas fa-users"></i> Current Occupants ({{ occupants|length }})
+            </div>
+            
+            {% if occupants %}
+            <div class="students-grid">
+                {% for student in occupants %}
+                <div class="student-card">
+                    <div class="student-name">
+                        <i class="fas fa-user"></i> {{ student.name }}
+                    </div>
+                    <div class="student-details">
+                        {% if student.student_id_number %}
+                        ID: {{ student.student_id_number }}<br>
+                        {% endif %}
+                        {% if student.course %}
+                        Course: {{ student.course }}<br>
+                        {% endif %}
+                        {% if student.phone %}
+                        Phone: {{ student.phone }}<br>
+                        {% endif %}
+                        <div class="margin-top-8">                            <a href="{{ url_for('student.view_student', student_id=student.id) }}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i> View Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-data">
+                <i class="fas fa-bed"></i><br>
+                No students currently assigned to this room
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{{ url_for('room.edit_room', room_id=room.id) }}" 
+                   class="btn btn-primary btn-icon">
+                    <i class="fas fa-edit"></i> Edit Room
+                </a>
+                
+                {% if room.status == 'Available' or room.current_occupancy < room.capacity %}                <a href="{{ url_for('student.add_student') }}?room_id={{ room.id }}" 
+                   class="btn btn-success btn-icon">
+                    <i class="fas fa-user-plus"></i> Assign Student
+                </a>
+                {% endif %}
+                
+                <a href="{{ url_for('room.view_rooms') }}" 
+                   class="btn btn-secondary btn-icon">
+                    <i class="fas fa-arrow-left"></i> Back to Rooms
+                </a>
+            </div>
+        </div>
+
+        <!-- Sidebar Information -->
+        <div class="sidebar-info">
+            
+            <!-- Room Statistics -->
+            <div class="info-section">
+                <div class="section-title">
+                    <i class="fas fa-chart-bar"></i> Statistics
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Occupancy Rate</span>
+                    <span class="detail-value">
+                        {{ ((room.current_occupancy / room.capacity * 100) if room.capacity > 0 else 0)|round(1) }}%
+                    </span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Available Spots</span>
+                    <span class="detail-value">{{ room.capacity - room.current_occupancy }}</span>
+                </div>
+                
+                {% if room.complaint_count is defined %}
+                <div class="detail-row">
+                    <span class="detail-label">Open Complaints</span>
+                    <span class="detail-value">{{ room.complaint_count or 0 }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Recent Complaints -->
+            {% if room.complaint_descriptions %}
+            <div class="info-section">
+                <div class="section-title">
+                    <i class="fas fa-exclamation-triangle"></i> Recent Complaints
+                </div>
+                <div class="complaints-list">
+                    {% for complaint in room.complaint_descriptions.split('; ') %}
+                    {% if complaint.strip() %}
+                    <div class="complaint-item">
+                        {{ complaint.strip() }}
+                        {% if room.last_complaint_date %}
+                        <span class="complaint-date">{{ room.last_complaint_date }}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Maintenance History -->
+            {% if room.maintenance_history %}
+            <div class="info-section">
+                <div class="section-title">
+                    <i class="fas fa-tools"></i> Maintenance History
+                </div>
+                <div class="maintenance-history">
+                    {% for maintenance in room.maintenance_history %}
+                    <div class="maintenance-item">
+                        {{ maintenance.description }}
+                        <div class="small-text-muted">
+                            {{ maintenance.date }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="info-section">
+                <div class="section-title">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </div>
+                
+                <div class="d-grid gap-2">
+                    {% if room.status != 'Maintenance' %}
+                    <a href="{{ url_for('room.edit_room', room_id=room.id) }}?status=Maintenance" 
+                       class="btn btn-sm btn-warning">
+                        <i class="fas fa-tools"></i> Mark for Maintenance
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('room.statistics') }}" 
+                       class="btn btn-sm btn-info">
+                        <i class="fas fa-chart-line"></i> View Statistics
+                    </a>
+                    
+                    <a href="{{ url_for('room.available_rooms') }}" 
+                       class="btn btn-sm btn-success">
+                        <i class="fas fa-search"></i> Find Available Rooms
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+                <span>{{ room.capacity }} students</span>
+            </div>
+            <div class="detail-item">
+                <label>Current Occupancy:</label>
+                <span>{{ room.current_occupancy }} students</span>
+            </div>
+            <div class="detail-item">
+                <label>Available Spaces:</label>
+                <span>{{ room.capacity - room.current_occupancy }} spaces</span>
+            </div>
+            <div class="detail-item">
+                <label>Occupancy Rate:</label>
+                <span>{{ ((room.current_occupancy / room.capacity) * 100)|round(1) if room.capacity > 0 else 0 }}%</span>
+            </div>
+        </div>
+          <div class="occupancy-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" data-width="{{ ((room.current_occupancy / room.capacity) * 100) if room.capacity > 0 else 0 }}"></div>
+            </div>
+        </div>
+    </div>
+    
+    {% if occupants %}
+    <div class="occupants-section">
+        <h4>Current Occupants</h4>
+        <div class="occupants-grid">
+            {% for student in occupants %}
+            <div class="student-card">
+                <div class="student-info">
+                    <h5>{{ student.name }}</h5>
+                    <p class="student-id">ID: {{ student.student_id_number or 'Not provided' }}</p>
+                    <p class="student-course">{{ student.course or 'Course not specified' }}</p>
+                </div>
+                <div class="student-actions">
+                    <a href="{{ url_for('student.view_student', student_id=student.id) }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye"></i> View Profile
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="no-occupants">
+        <div class="empty-state">
+            <i class="fas fa-bed fa-3x text-muted mb-3"></i>
+            <h4>No Current Occupants</h4>
+            <p class="text-muted">This room is currently unoccupied and available for assignment.</p>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="room-actions">
+        <a href="{{ url_for('room.edit_room', room_id=room.id) }}" class="btn btn-primary">
+            <i class="fas fa-edit"></i> Edit Room
+        </a>
+        <a href="{{ url_for('room.view_rooms') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Rooms
+        </a>
+        {% if not occupants %}
+        <form method="post" action="{{ url_for('room.delete_room', room_id=room.id) }}" class="d-inline">
+            <button type="submit" class="btn btn-danger" 
+                    onclick="return confirm('Are you sure you want to delete this room?')">
+                <i class="fas fa-trash"></i> Delete Room
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Set dynamic widths for progress indicators
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle occupancy fill widths
+    document.querySelectorAll('[data-width]').forEach(function(element) {
+        const width = element.getAttribute('data-width');
+        element.style.width = width + '%';
+    });
+    
+    // Handle progress fill widths
+    document.querySelectorAll('.progress-fill[data-width]').forEach(function(element) {
+        const width = element.getAttribute('data-width');
+        element.style.width = width + '%';
+    });
+});
+</script>
+{% endblock %}

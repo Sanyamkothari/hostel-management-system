@@ -1,11 +1,27 @@
 {% extends "layout.html" %}
 
 {% block title %}Edit Fee - Hostel Management{% endblock %}
-{% block page_title %}Edit Fee Record{% endblock %}
+{% block page_title %}
+    Edit Fee Record
+    {% if current_hostel_name and g.user.role == 'manager' %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% elif g.user.role == 'owner' and current_hostel_name %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="form-container">
     <form method="post" class="styled-form">
+        {% if g.user.role == 'owner' %}
+        <div class="form-group">
+            <label for="hostel_info">Hostel</label>
+            <input type="text" id="hostel_info" class="form-control" value="{{ fee.hostel_name }}" readonly>
+            <small class="form-text text-muted">
+                The hostel assignment cannot be changed. To change it, delete this fee and create a new one in the desired hostel.
+            </small>
+        </div>
+        {% endif %}
         <div class="form-group">
             <label for="amount">Amount</label>
             <input type="number" name="amount" id="amount" class="form-control" step="0.01" min="0.01" required value="{{ fee.amount }}">
@@ -19,9 +35,8 @@
             <select name="status" id="status" class="form-control">
                 <option value="Pending" {% if fee.status == 'Pending' %}selected{% endif %}>Pending</option>
                 <option value="Paid" {% if fee.status == 'Paid' %}selected{% endif %}>Paid</option>
-            </select>
-        </div>
-        <div class="form-group paid-date-container" style="display: {% if fee.status == 'Paid' %}block{% else %}none{% endif %};">
+            </select>        </div>
+        <div class="form-group paid-date-container {% if fee.status != 'Paid' %}d-none{% endif %}">
             <label for="paid_date">Payment Date</label>
             <input type="date" name="paid_date" id="paid_date" class="form-control" value="{{ fee.paid_date or '' }}">
         </div>
@@ -31,12 +46,11 @@
         </div>
     </form>
 </div>
-<script>
-    // Show/hide paid date field based on status
+<script>    // Show/hide paid date field based on status
     document.getElementById('status').addEventListener('change', function() {
         var paidDateContainer = document.querySelector('.paid-date-container');
         if (this.value === 'Paid') {
-            paidDateContainer.style.display = 'block';
+            paidDateContainer.classList.remove('d-none');
             // Set default value to today if empty
             var paidDateInput = document.getElementById('paid_date');
             if (!paidDateInput.value) {
@@ -44,7 +58,7 @@
                 paidDateInput.value = today;
             }
         } else {
-            paidDateContainer.style.display = 'none';
+            paidDateContainer.classList.add('d-none');
         }
     });
 </script>

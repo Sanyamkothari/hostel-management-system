@@ -1,12 +1,32 @@
 {% extends "layout.html" %}
 
 {% block title %}Add Complaint - Hostel Management{% endblock %}
-{% block page_title %}Add New Complaint/Maintenance Request{% endblock %}
+{% block page_title %}
+    Add New Complaint/Maintenance Request
+    {% if current_hostel_name and g.user.role == 'manager' %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="card p-3">
     <form method="POST" action="{{ url_for('complaints.add_complaint') }}">
         <div class="row g-3">
+            {% if g.user.role == 'owner' %}
+            <div class="col-md-12">
+                <label for="hostel_id" class="form-label">Hostel: <span class="text-danger" aria-label="required">*</span><span class="sr-only">(required)</span></label>
+                <select id="hostel_id" name="hostel_id" class="form-select" required>
+                    <option value="">-- Select Hostel --</option>
+                    {% for hostel in hostels_list %}
+                    <option value="{{ hostel.id }}" {% if selected_hostel_id == hostel.id %}selected{% endif %}>
+                        {{ hostel.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <small class="form-text text-muted">Select the hostel where this complaint is being reported</small>
+            </div>
+            {% endif %}
+            
             <div class="col-md-6">
                 <label for="reported_by_name" class="form-label">Reported By (Name):</label>
                 <input type="text" id="reported_by_name" name="reported_by_name" class="form-control" value="{{ form_data.reported_by_name if form_data else '' }}">
@@ -33,7 +53,7 @@
             </div>
 
             <div class="col-md-12">
-                <label for="description" class="form-label">Description: <span class="text-danger">*</span></label>
+                <label for="description" class="form-label">Description: <span class="text-danger" aria-label="required">*</span><span class="sr-only">(required)</span></label>
                 <textarea id="description" name="description" class="form-control" rows="4" required>{{ form_data.description if form_data else '' }}</textarea>
             </div>
 
@@ -55,8 +75,12 @@
                 </select>
             </div>
         </div>        <div class="mt-4">
-            <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Submit Complaint</button>
-            <a href="{{ url_for('complaints.view_complaints') }}" class="btn btn-secondary"><i class="fas fa-times-circle"></i> Cancel</a>
+            <button type="submit" class="btn btn-success" aria-label="Submit new complaint or maintenance request">
+                <i class="fas fa-save" aria-hidden="true"></i> Submit Complaint
+            </button>
+            <a href="{{ url_for('complaints.view_complaints') }}" class="btn btn-secondary" aria-label="Cancel and return to complaints list">
+                <i class="fas fa-times-circle" aria-hidden="true"></i> Cancel
+            </a>
         </div>
     </form>
 </div>

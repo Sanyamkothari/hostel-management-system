@@ -2,29 +2,38 @@
 
 {% block title %}Dashboard - Hostel Management{% endblock %}
 
-{% block page_title %}Dashboard Overview{% endblock %}
+{% block page_title %}
+    Dashboard Overview
+    {% if current_hostel_name and g.user.role == 'manager' %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% elif g.user.role == 'owner' and not selected_hostel_id %}
+        <span class="text-muted fs-5"> - All Hostels</span>
+    {% elif g.user.role == 'owner' and current_hostel_name %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
 
 {% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/optimized-common.css') }}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ url_for('static', filename='js/dashboard-charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard-init.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard-debug.js') }}"></script>
 {% endblock %}
 
 {% block content %}
 <div class="dashboard-container">
-    <!-- Key Metrics Section -->
-    <div class="dashboard-stats">
-        <div class="stat-card">
-            <i class="fas fa-users stat-icon"></i>
-            <h3>Total Students</h3>
+    <!-- Key Metrics Section -->    <div class="dashboard-stats">        <div class="stat-card">
+            <i class="fas fa-users stat-icon" aria-hidden="true"></i>
+            <h2>Total Students</h2>
             <p class="stat-value">{{ stats.students }}</p>
             <div class="stat-progress" title="{{ stats.occupancy_percentage|round(1) }}% of capacity filled">
-                <div class="progress-bar" style="width: {{ stats.occupancy_percentage }}%"></div>
+                <div class="progress-bar dynamic-progress" data-progress-width="{{ stats.occupancy_percentage }}"></div>
             </div>
             <a href="{{ url_for('student.view_students') }}" class="stat-link">Manage Students <i class="fas fa-arrow-circle-right"></i></a>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-door-open stat-icon"></i>
-            <h3>Total Rooms</h3>
+        </div>        <div class="stat-card">
+            <i class="fas fa-door-open stat-icon" aria-hidden="true"></i>
+            <h2>Total Rooms</h2>
             <p class="stat-value">{{ stats.rooms }}</p>
             <div class="capacity-indicator">
                 <span class="available">{{ stats.available_rooms }} Available</span>
@@ -34,19 +43,17 @@
                 {% endif %}
             </div>
             <a href="{{ url_for('room.view_rooms') }}" class="stat-link">Manage Rooms <i class="fas fa-arrow-circle-right"></i></a>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-bed stat-icon"></i>
-            <h3>Occupancy</h3>
+        </div>        <div class="stat-card">
+            <i class="fas fa-bed stat-icon" aria-hidden="true"></i>
+            <h2>Occupancy</h2>
             <p class="stat-value">{{ stats.current_occupancy }}/{{ stats.total_capacity }}</p>
             <div class="stat-progress" title="{{ stats.occupancy_percentage|round(1) }}% occupied">
-                <div class="progress-bar" style="width: {{ stats.occupancy_percentage }}%"></div>
+                <div class="progress-bar" data-progress-width="{{ stats.occupancy_percentage }}"></div>
             </div>
             <a href="{{ url_for('dashboard.room_occupancy_report') }}" class="stat-link">View Occupancy <i class="fas fa-arrow-circle-right"></i></a>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-file-invoice-dollar stat-icon"></i>
-            <h3>Pending Fees</h3>
+        </div>        <div class="stat-card">
+            <i class="fas fa-file-invoice-dollar stat-icon" aria-hidden="true"></i>
+            <h2>Pending Fees</h2>
             <p class="stat-value">${{ stats.pending_fees_amount|round(2) }}</p>
             <div class="fee-status">
                 <span class="pending">{{ stats.pending_fees }} Pending</span>
@@ -56,22 +63,33 @@
             </div>
             <a href="{{ url_for('fee.view_fees') }}" class="stat-link">Manage Fees <i class="fas fa-arrow-circle-right"></i></a>
         </div>
+
+        <div class="stat-card">
+            <i class="fas fa-money-bill-wave stat-icon" aria-hidden="true"></i>
+            <h2>Monthly Expenses</h2>
+            <p class="stat-value">₹{{ stats.monthly_expenses|round(2) }}</p>
+            <div class="expense-status">
+                <span class="count">{{ stats.monthly_expense_count }} transactions</span>
+                {% if stats.monthly_avg_expense > 0 %}
+                <span class="average">Avg: ₹{{ stats.monthly_avg_expense|round(2) }}</span>
+                {% endif %}
+            </div>
+            <a href="{{ url_for('expense.list_expenses') }}" class="stat-link">Manage Expenses <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
     </div>
 
     <!-- Charts and Quick Actions Row -->
     <div class="dashboard-row">
         <!-- Room Occupancy Chart -->
-        <div class="dashboard-chart-container">
-            <div class="chart-card">
-                <h3>Room Occupancy</h3>
+        <div class="dashboard-chart-container">            <div class="chart-card">
+                <h2>Room Occupancy</h2>
                 <canvas id="roomOccupancyChart"></canvas>
             </div>
         </div>
         
         <!-- Fee Status Chart -->
-        <div class="dashboard-chart-container">
-            <div class="chart-card">
-                <h3>Fee Collection Status</h3>
+        <div class="dashboard-chart-container">            <div class="chart-card">
+                <h2>Fee Collection Status</h2>
                 <canvas id="feeStatusChart"></canvas>
             </div>
         </div>
@@ -80,9 +98,8 @@
     <!-- Recent Activity and Quick Actions Row -->
     <div class="dashboard-row">
         <!-- Recent Activity -->
-        <div class="dashboard-section">
-            <div class="section-card">
-                <h3>Recent Activity</h3>
+        <div class="dashboard-section">            <div class="section-card">
+                <h2>Recent Activity</h2>
                 <div class="recent-activity">
                     {% if recent_activity %}
                         <ul class="activity-list">
@@ -112,19 +129,19 @@
         </div>
         
         <!-- Quick Actions -->
-        <div class="dashboard-section">
-            <div class="section-card">
-                <h3>Quick Actions</h3>
-                <div class="quick-actions">
-                    <h4><i class="fas fa-bolt"></i> Quick Actions</h4>
+        <div class="dashboard-section">            <div class="section-card">
+                <h2>Quick Actions</h2>                <div class="quick-actions">
                     <a href="{{ url_for('student.add_student') }}" class="action-btn student">
                         <i class="fas fa-user-plus"></i> Add Student
                     </a>
                     <a href="{{ url_for('room.add_room') }}" class="action-btn room">
-                        <i class="fas fa-door-plus"></i> Add Room <!-- Assuming 'fa-door-plus' or similar exists -->
+                        <i class="fas fa-plus-square"></i> Add Room
                     </a>
                     <a href="{{ url_for('fee.add_fee') }}" class="action-btn fee">
                         <i class="fas fa-file-invoice-dollar"></i> Add Fee
+                    </a>
+                    <a href="{{ url_for('expense.add_expense') }}" class="action-btn expense">
+                        <i class="fas fa-money-bill-wave"></i> Add Expense
                     </a>
                     <a href="{{ url_for('complaints.add_complaint') }}" class="action-btn complaint">
                         <i class="fas fa-tools"></i> Log Complaint
@@ -135,23 +152,41 @@
                     <a href="{{ url_for('fee.fee_reports') }}" class="action-btn report">
                         <i class="fas fa-chart-line"></i> Fee Payments Report
                     </a>
+                    <a href="{{ url_for('expense.expense_reports') }}" class="action-btn report">
+                        <i class="fas fa-chart-area"></i> Expense Reports
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Room Occupancy Chart
-    initOccupancyChart('roomOccupancyChart', {{ room_data|default([])|tojson }});
+<!-- Store chart data in a hidden element for JavaScript to access -->
+<div id="chart-data" 
+     data-room-data="{{ room_data|default([])|tojson|safe }}"
+     data-paid-fees="{{ stats.paid_fees_amount|default(0) }}"     data-pending-fees="{{ stats.pending_fees_amount|default(0) }}"
+     data-overdue-fees="{{ stats.overdue_fees_amount|default(0) }}"
+     class="hidden-element">
+</div>
+
+<script type="text/javascript">
+    // Make sure data is available globally
+    window.dashboardData = {
+        roomData: JSON.parse('{{ room_data|default([])|tojson }}'),
+        feeData: {
+            paid: parseFloat('{{ stats.paid_fees_amount|default(0) }}'),
+            pending: parseFloat('{{ stats.pending_fees_amount|default(0) }}'),
+            overdue: parseFloat('{{ stats.overdue_fees_amount|default(0) }}')
+        }
+    };
     
-    // Initialize Fee Status Chart
-    initFeesChart('feeStatusChart', {
-        paid: {{ stats.paid_fees_amount|default(0) }},
-        pending: {{ stats.pending_fees_amount|default(0) }},
-        overdue: {{ stats.overdue_fees_amount|default(0) }}
-    });
-});
+    // Debug logging
+    console.log("=== DASHBOARD DEBUG ===");
+    console.log("Chart.js loaded:", typeof Chart !== 'undefined');
+    console.log("Room data:", window.dashboardData.roomData);
+    console.log("Fee data:", window.dashboardData.feeData);
+    console.log("Room chart element exists:", !!document.getElementById('roomOccupancyChart'));
+    console.log("Fee chart element exists:", !!document.getElementById('feeStatusChart'));
+</script>
 </script>
 {% endblock %}

@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Fee Record - Hostel Management{% endblock %}
+
+{% block page_title %}
+    Add New Fee Record
+    {% if current_hostel_name and g.user.role == 'manager' %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <form method="post" class="styled-form">
+        
+        <!-- Hostel Selection (Only for Owners) -->
+        {% if g.user.role == 'owner' %}
+        <div class="form-group">
+            <label for="hostel_id"><i class="fas fa-hotel" aria-hidden="true"></i> Hostel <span class="text-danger" aria-label="required">*</span><span class="sr-only">(required)</span></label>
+            <select id="hostel_id" name="hostel_id" required class="form-control" onchange="this.form.submit()">
+                <option value="">-- Select Hostel --</option>
+                {% for hostel in hostels_list %}
+                    <option value="{{ hostel.id }}" {% if selected_hostel_id == hostel.id %}selected{% endif %}>
+                        {{ hostel.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <small class="form-text text-muted">
+                Select a hostel first. The student list will reload based on the selected hostel.
+            </small>
+        </div>
+        {% endif %}
+
+        <!-- Student Selection -->
+        <div class="form-group">
+            <label for="student_id"><i class="fas fa-user-graduate" aria-hidden="true"></i> Student <span class="text-danger" aria-label="required">*</span><span class="sr-only">(required)</span></label>
+            <select id="student_id" name="student_id" required class="form-control">
+                <option value="">-- Select Student --</option>
+                {% for student in students %}
+                <option value="{{ student.id }}" {% if form_data and form_data.student_id == student.id|string %}selected{% endif %}>{{ student.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Amount Input -->
+        <div class="form-group">
+            <label for="amount"><i class="fas fa-rupee-sign" aria-hidden="true"></i> Amount <span class="text-danger" aria-label="required">*</span><span class="sr-only">(required)</span></label>
+            <input type="number" id="amount" name="amount" required step="0.01" min="0" value="{{ form_data.amount if form_data else '' }}" class="form-control">
+        </div>
+
+        <!-- Due Date -->
+        <div class="form-group">
+            <label for="due_date"><i class="fas fa-calendar-alt"></i> Due Date</label>
+            <input type="date" id="due_date" name="due_date" value="{{ form_data.due_date if form_data else '' }}" class="form-control">
+        </div>
+
+        <!-- Status Selection -->
+        <div class="form-group">
+            <label for="status"><i class="fas fa-info-circle"></i> Status</label>
+            <select id="status" name="status" class="form-control">
+                <option value="Pending" {% if form_data and form_data.status == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="Paid" {% if form_data and form_data.status == 'Paid' %}selected{% endif %}>Paid</option>
+                <option value="Overdue" {% if form_data and form_data.status == 'Overdue' %}selected{% endif %}>Overdue</option>
+            </select>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Add Fee</button>
+            <a href="{{ url_for('fee.view_fees') }}" class="btn btn-secondary"><i class="fas fa-times-circle"></i> Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const form = document.querySelector('form');
+    const dueDateInput = document.getElementById('due_date');
+    
+    // Set default due date to 30 days from now if not already set
+    if (!dueDateInput.value) {
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+        const formattedDate = thirtyDaysFromNow.toISOString().split('T')[0];
+        dueDateInput.value = formattedDate;
+    }
+    
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        // Check if owner has selected a hostel
+        const hostelSelect = document.getElementById('hostel_id');
+        if (hostelSelect && !hostelSelect.value) {
+            e.preventDefault();
+            alert('Please select a hostel first.');
+            hostelSelect.focus();
+            return false;
+        }
+        
+        // Check if student is selected
+        const studentSelect = document.getElementById('student_id');
+        if (!studentSelect.value) {
+            e.preventDefault();
+            alert('Please select a student.');
+            studentSelect.focus();
+            return false;
+        }
+        
+        // Check if amount is valid
+        const amountInput = document.getElementById('amount');
+        if (!amountInput.value || parseFloat(amountInput.value) <= 0) {
+            e.preventDefault();
+            alert('Please enter a valid amount greater than 0.');
+            amountInput.focus();
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -99,6 +99,34 @@
 .legend-color {
     width: 20px;
     height: 20px;
+    border-radius: 3px;
+}
+
+.legend-no-fees {
+    background-color: #e3f2fd;
+}
+
+.legend-paid {
+    background-color: #4caf50;
+    opacity: 0.2;
+}
+
+.legend-pending {
+    background-color: #2196f3;
+    opacity: 0.4;
+}
+
+.legend-overdue {
+    background-color: #f44336;
+    opacity: 0.3;
+}
+
+.legend-mixed {
+    background-color: #ff9800;
+    opacity: 0.3;
+}
+
+.legend-color {
     border: 1px solid #dee2e6;
 }
 

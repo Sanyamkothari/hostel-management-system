@@ -10,6 +10,35 @@
     margin-top: 20px;
 }
 
+/* Occupancy visualization with no inline styles */
+.occupancy-container {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+}
+
+/* Accessibility and UI Improvements */
+.inline-form {
+    display: inline;
+}
+
+.d-inline {
+    display: inline;
+}
+
+/* Screen reader only text */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
 .room-card {
     background-color: white;
     border-radius: 8px;

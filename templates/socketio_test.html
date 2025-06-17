@@ -1,0 +1,379 @@
+{% extends "layout.html" %}
+
+{% block title %}Socket.IO Test{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/socketio.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-broadcast-tower text-primary"></i>
+                        Socket.IO Real-time Connection Test
+                    </h5>
+                    <div id="connection-status-badge" class="badge bg-secondary">
+                        Checking...
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Connection Status -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">Connection Status</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="connection-info">
+                                        <p><strong>Status:</strong> <span id="socket-status">Connecting...</span></p>
+                                        <p><strong>Connected Users:</strong> <span id="connected-users">-</span></p>
+                                        <p><strong>Your Role:</strong> {{ g.user.role if g.user else 'Unknown' }}</p>
+                                        <p><strong>Your Hostel:</strong> {{ g.user.hostel_id if g.user and g.user.hostel_id else 'System-wide' }}</p>
+                                        <p><strong>Connection Health:</strong> <span id="connection-health">Unknown</span></p>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-info" onclick="refreshConnectionStatus()">
+                                        <i class="fas fa-refresh"></i> Refresh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0">Test Notifications</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="test-message" class="form-label">Message:</label>
+                                        <input type="text" class="form-control" id="test-message" 
+                                               value="Test notification from Socket.IO">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="notification-type" class="form-label">Type:</label>
+                                        <select class="form-select" id="notification-type">
+                                            <option value="info">Info</option>
+                                            <option value="success">Success</option>
+                                            <option value="warning">Warning</option>
+                                            <option value="error">Error</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-success" onclick="sendTestNotification()">
+                                        <i class="fas fa-bell"></i> Send Test Notification
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Event Log -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Real-time Event Log</h6>
+                                    <button class="btn btn-sm btn-outline-dark" onclick="clearEventLog()">
+                                        <i class="fas fa-trash"></i> Clear
+                                    </button>
+                                </div>                                <div class="card-body">
+                                    <div id="event-log" class="event-log">
+                                        <p class="text-muted">Events will appear here...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Owner Controls -->
+                    {% if g.user and g.user.role == 'owner' %}
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0">Owner Controls</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="broadcast-message" class="form-label">Broadcast Message:</label>
+                                        <input type="text" class="form-control" id="broadcast-message" 
+                                               value="System announcement from owner">
+                                    </div>
+                                    <button class="btn btn-danger me-2" onclick="sendBroadcast()">
+                                        <i class="fas fa-bullhorn"></i> Send Broadcast
+                                    </button>
+                                    <button class="btn btn-warning" onclick="triggerDashboardUpdate()">
+                                        <i class="fas fa-chart-bar"></i> Trigger Dashboard Update
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Test Controls -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Advanced Tests</h6>
+                                </div>
+                                <div class="card-body">
+                                    <button class="btn btn-primary me-2" onclick="testConnectionHealth()">
+                                        <i class="fas fa-heartbeat"></i> Test Connection Health
+                                    </button>
+                                    <button class="btn btn-info me-2" onclick="subscribeToNotifications()">
+                                        <i class="fas fa-subscribe"></i> Subscribe to All Notifications
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="requestDashboardUpdate()">
+                                        <i class="fas fa-sync"></i> Request Dashboard Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Wait for socket manager to be ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up event listeners for socket events
+    setupSocketEventListeners();
+    
+    // Initial status check
+    setTimeout(refreshConnectionStatus, 1000);
+    
+    // Periodic status updates
+    setInterval(refreshConnectionStatus, 30000);
+});
+
+function setupSocketEventListeners() {
+    if (window.socketManager) {
+        // Listen to socket manager events
+        socketManager.on('connected', function() {
+            updateConnectionStatus('Connected', 'success');
+            logEvent('Socket.IO connected successfully', 'success');
+        });
+        
+        socketManager.on('disconnected', function(reason) {
+            updateConnectionStatus('Disconnected', 'danger');
+            logEvent(`Socket.IO disconnected: ${reason}`, 'warning');
+        });
+        
+        socketManager.on('reconnected', function() {
+            updateConnectionStatus('Reconnected', 'success');
+            logEvent('Socket.IO reconnected', 'success');
+        });
+        
+        socketManager.on('connection_failed', function() {
+            updateConnectionStatus('Connection Failed', 'danger');
+            logEvent('Socket.IO connection failed', 'danger');
+        });
+        
+        // Listen to all types of events for logging
+        const eventTypes = [
+            'fee_added', 'fee_paid', 'fee_updated', 'fee_deleted',
+            'student_added', 'student_updated', 'student_deleted',
+            'room_added', 'room_status_changed', 'room_deleted',
+            'new_complaint', 'complaint_updated', 'complaint_deleted',
+            'system_notification', 'system_broadcast', 'dashboard_update'
+        ];
+        
+        eventTypes.forEach(eventType => {
+            socketManager.on(eventType, function(data) {
+                logEvent(`Received ${eventType}`, 'info', data);
+            });
+        });
+    } else {
+        setTimeout(setupSocketEventListeners, 500);
+    }
+}
+
+function updateConnectionStatus(status, type) {
+    const badge = document.getElementById('connection-status-badge');
+    const statusSpan = document.getElementById('socket-status');
+    
+    if (badge) {
+        badge.className = `badge bg-${type}`;
+        badge.textContent = status;
+    }
+    
+    if (statusSpan) {
+        statusSpan.textContent = status;
+    }
+}
+
+function logEvent(message, type = 'info', data = null) {
+    const eventLog = document.getElementById('event-log');
+    const timestamp = new Date().toLocaleTimeString();
+    
+    const typeColors = {
+        success: '#28a745',
+        info: '#17a2b8',
+        warning: '#ffc107',
+        danger: '#dc3545',
+        error: '#dc3545'
+    };
+    
+    const eventDiv = document.createElement('div');
+    eventDiv.style.cssText = `
+        margin-bottom: 5px;
+        padding: 5px;
+        border-left: 3px solid ${typeColors[type] || '#6c757d'};
+        background-color: rgba(0,0,0,0.02);
+    `;
+      let content = `<strong>[${timestamp}]</strong> ${message}`;
+    if (data) {
+        content += `<br><small class="event-timestamp"><pre class="event-data">${JSON.stringify(data, null, 2)}</pre></small>`;
+    }
+    
+    eventDiv.innerHTML = content;
+    eventLog.appendChild(eventDiv);
+    eventLog.scrollTop = eventLog.scrollHeight;
+}
+
+function clearEventLog() {
+    const eventLog = document.getElementById('event-log');
+    eventLog.innerHTML = '<p class="text-muted">Events will appear here...</p>';
+}
+
+function refreshConnectionStatus() {
+    fetch('/socketio-test/connection-status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('connected-users').textContent = data.connected_users;
+                document.getElementById('connection-health').textContent = 'Good';
+                logEvent('Connection status refreshed', 'info');
+            } else {
+                document.getElementById('connection-health').textContent = 'Error';
+                logEvent('Failed to refresh connection status', 'warning');
+            }
+        })
+        .catch(error => {
+            console.error('Error refreshing connection status:', error);
+            document.getElementById('connection-health').textContent = 'Error';
+            logEvent('Connection status refresh failed', 'danger');
+        });
+}
+
+function sendTestNotification() {
+    const message = document.getElementById('test-message').value;
+    const type = document.getElementById('notification-type').value;
+    
+    fetch('/socketio-test/send-notification', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            message: message,
+            type: type
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            logEvent('Test notification sent', 'success');
+        } else {
+            logEvent('Failed to send test notification: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error sending notification:', error);
+        logEvent('Test notification failed', 'danger');
+    });
+}
+
+function sendBroadcast() {
+    const message = document.getElementById('broadcast-message').value;
+    
+    fetch('/socketio-test/broadcast-message', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            message: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            logEvent('Broadcast message sent', 'success');
+        } else {
+            logEvent('Failed to send broadcast: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error sending broadcast:', error);
+        logEvent('Broadcast failed', 'danger');
+    });
+}
+
+function triggerDashboardUpdate() {
+    fetch('/socketio-test/trigger-dashboard-update', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            logEvent('Dashboard update triggered', 'success');
+        } else {
+            logEvent('Failed to trigger dashboard update: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error triggering dashboard update:', error);
+        logEvent('Dashboard update failed', 'danger');
+    });
+}
+
+function testConnectionHealth() {
+    if (window.socketManager) {
+        socketManager.sendMessage('ping');
+        logEvent('Connection health test initiated', 'info');
+        
+        // Wait for pong response
+        setTimeout(() => {
+            logEvent('Waiting for pong response...', 'info');
+        }, 100);
+    } else {
+        logEvent('Socket manager not available', 'warning');
+    }
+}
+
+function subscribeToNotifications() {
+    if (window.socketManager) {
+        const types = ['fees', 'students', 'rooms', 'complaints', 'payments', 'expenses'];
+        socketManager.subscribeToNotifications(types);
+        logEvent('Subscribed to all notification types', 'success');
+    } else {
+        logEvent('Socket manager not available', 'warning');
+    }
+}
+
+function requestDashboardUpdate() {
+    if (window.socketManager) {
+        socketManager.requestDashboardUpdate();
+        logEvent('Dashboard update requested', 'info');
+    } else {
+        logEvent('Socket manager not available', 'warning');
+    }
+}
+</script>
+{% endblock %}

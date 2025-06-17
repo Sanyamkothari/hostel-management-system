@@ -1,0 +1,290 @@
+/* Accessibility CSS - Enhanced Screen Reader and Keyboard Navigation Support */
+
+/* Screen Reader Only Text */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.sr-only-focusable:focus {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0.25rem 0.5rem !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+    background-color: #000;
+    color: #fff;
+    text-decoration: none;
+    z-index: 9999;
+}
+
+/* Enhanced Focus Indicators */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+[tabindex]:focus {
+    outline: 3px solid #005fcc;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(0, 95, 204, 0.3);
+}
+
+/* Skip Links */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #000;
+    color: #fff;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 1000;
+    transition: top 0.3s;
+}
+
+.skip-link:focus {
+    top: 6px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .btn {
+        border: 2px solid currentColor;
+    }
+    
+    .badge {
+        border: 1px solid currentColor;
+    }
+    
+    .progress-bar {
+        border: 1px solid #000;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Enhanced Color Contrast for Status Indicators */
+.text-danger {
+    color: #dc3545 !important;
+    font-weight: 600;
+}
+
+.text-success {
+    color: #198754 !important;
+    font-weight: 600;
+}
+
+.text-warning {
+    color: #fd7e14 !important;
+    font-weight: 600;
+}
+
+/* Status badges with better contrast */
+.badge.bg-success {
+    background-color: #198754 !important;
+    color: #fff !important;
+}
+
+.badge.bg-warning {
+    background-color: #fd7e14 !important;
+    color: #000 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+/* Keyboard Navigation Enhancement */
+.dropdown-toggle:focus + .collapse {
+    display: block;
+}
+
+/* Form Enhancement */
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #005fcc;
+    box-shadow: 0 0 0 0.2rem rgba(0, 95, 204, 0.25);
+}
+
+/* Table Accessibility */
+.table th[role="button"] {
+    cursor: pointer;
+    position: relative;
+}
+
+.table th[role="button"]:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.table th[role="button"]:focus {
+    background-color: rgba(0, 95, 204, 0.1);
+}
+
+/* Progress Bar Enhancement */
+.progress {
+    background-color: #e9ecef;
+    border: 1px solid #dee2e6;
+}
+
+.progress-bar {
+    background-color: #0d6efd;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Button Enhancement */
+.btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 95, 204, 0.5);
+}
+
+.btn[aria-pressed="true"] {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
+
+/* Navigation Enhancement */
+.sidebar nav ul li a:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    outline: 2px solid #fff;
+    outline-offset: -2px;
+}
+
+/* Modal Enhancement */
+.modal:focus {
+    outline: none;
+}
+
+.modal-content {
+    border: 2px solid #005fcc;
+}
+
+/* Error and Alert Enhancement */
+.alert {
+    border-left: 4px solid;
+}
+
+.alert-danger {
+    border-left-color: #dc3545;
+}
+
+.alert-success {
+    border-left-color: #198754;
+}
+
+.alert-warning {
+    border-left-color: #fd7e14;
+}
+
+.alert-info {
+    border-left-color: #0dcaf0;
+}
+
+/* Print Styles for Accessibility */
+@media print {
+    .sr-only {
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        clip: auto !important;
+        white-space: normal !important;
+    }
+    
+    .sr-only::before {
+        content: " [";
+    }
+    
+    .sr-only::after {
+        content: "] ";
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .sr-only-focusable:focus {
+        background-color: #fff;
+        color: #000;
+    }
+    
+    .skip-link {
+        background: #fff;
+        color: #000;
+    }
+}
+
+/* Enhanced Link Indicators */
+a[aria-label]::after {
+    content: "";
+}
+
+/* Interactive Element States */
+[aria-expanded="true"] .fas.fa-chevron-up::before {
+    content: "\f077"; /* chevron-up */
+}
+
+[aria-expanded="false"] .fas.fa-chevron-up::before {
+    content: "\f078"; /* chevron-down */
+}
+
+/* Custom focus indicators for specific components */
+.stat-card:focus-within {
+    box-shadow: 0 0 0 3px rgba(0, 95, 204, 0.3);
+    border-radius: 0.375rem;
+}
+
+.student-card:focus-within {
+    box-shadow: 0 0 0 3px rgba(0, 95, 204, 0.3);
+    transform: none;
+}
+
+/* Ensure sufficient color contrast for links */
+a {
+    color: #0056b3;
+}
+
+a:hover {
+    color: #004085;
+}
+
+a:visited {
+    color: #6f42c1;
+}
+
+/* Enhanced form validation styling */
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-weight: 600;
+}

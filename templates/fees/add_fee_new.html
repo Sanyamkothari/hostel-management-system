@@ -1,0 +1,144 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Fee - Hostel Management{% endblock %}
+
+{% block page_title %}
+    Add New Fee
+    {% if current_hostel_name and g.user.role == 'manager' %}
+        <span class="text-muted fs-5"> - {{ current_hostel_name }}</span>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <form method="post" action="{{ url_for('fee.add_fee') }}" class="styled-form">
+        
+        <!-- Hostel Selection (Only for Owners) -->
+        {% if g.user.role == 'owner' %}
+        <div class="form-group">
+            <label for="hostel_id">Hostel <span class="text-danger">*</span></label>
+            <select name="hostel_id" id="hostel_id" class="form-control" required onchange="this.form.submit()">
+                <option value="">Select a hostel</option>
+                {% for hostel in hostels_list %}
+                <option value="{{ hostel.id }}" {% if selected_hostel_id == hostel.id %}selected{% endif %}>{{ hostel.name }}</option>
+                {% endfor %}
+            </select>
+            <small class="form-text text-muted">Please select a hostel first to view available students.</small>
+        </div>
+        {% endif %}
+
+        <!-- Student Selection -->
+        <div class="form-group">
+            <label for="student_id">Student <span class="text-danger">*</span></label>
+            <select name="student_id" id="student_id" class="form-control" required>
+                <option value="">Select a student</option>
+                {% for student in students %}
+                <option value="{{ student.id }}">{{ student.name }} ({{ student.student_id_number or 'No ID' }})</option>
+                {% endfor %}
+            </select>
+            {% if g.user.role == 'owner' and not students %}
+            <small class="form-text text-warning">No students available. Please select a hostel first.</small>
+            {% endif %}
+        </div>
+
+        <!-- Amount Input -->
+        <div class="form-group">
+            <label for="amount">Amount ($) <span class="text-danger">*</span></label>
+            <input type="number" name="amount" id="amount" class="form-control" step="0.01" min="0.01" required>
+        </div>
+
+        <!-- Due Date -->
+        <div class="form-group">
+            <label for="due_date">Due Date <span class="text-danger">*</span></label>
+            <input type="date" name="due_date" id="due_date" class="form-control" required>
+        </div>
+
+        <!-- Status Selection -->
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select name="status" id="status" class="form-control">
+                <option value="Pending">Pending</option>
+                <option value="Paid">Paid</option>
+            </select>
+        </div>        <!-- Payment Date (Hidden by default, shown when status is Paid) -->
+        <div class="form-group hidden-initially" id="paid-date-container">
+            <label for="paid_date">Payment Date</label>
+            <input type="date" name="paid_date" id="paid_date" class="form-control">
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Fee</button>
+            <a href="{{ url_for('fee.view_fees') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const statusSelect = document.getElementById('status');
+    const paidDateContainer = document.getElementById('paid-date-container');
+    const paidDateInput = document.getElementById('paid_date');
+    const dueDateInput = document.getElementById('due_date');
+    const form = document.querySelector('form');
+    
+    // Show/hide payment date based on status
+    statusSelect.addEventListener('change', function() {
+        if (this.value === 'Paid') {
+            paidDateContainer.style.display = 'block';
+            // Set default payment date to today
+            const today = new Date().toISOString().split('T')[0];
+            paidDateInput.value = today;
+        } else {
+            paidDateContainer.style.display = 'none';
+            paidDateInput.value = '';
+        }
+    });
+    
+    // Set default due date to 30 days from now
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+    const formattedDate = thirtyDaysFromNow.toISOString().split('T')[0];
+    dueDateInput.value = formattedDate;
+    
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        // Check if owner has selected a hostel (if hostel select exists)
+        const hostelSelect = document.getElementById('hostel_id');
+        if (hostelSelect && !hostelSelect.value) {
+            e.preventDefault();
+            alert('Please select a hostel first.');
+            hostelSelect.focus();
+            return false;
+        }
+        
+        // Check if student is selected
+        const studentSelect = document.getElementById('student_id');
+        if (!studentSelect.value) {
+            e.preventDefault();
+            alert('Please select a student.');
+            studentSelect.focus();
+            return false;
+        }
+        
+        // Check if amount is valid
+        const amountInput = document.getElementById('amount');
+        if (!amountInput.value || parseFloat(amountInput.value) <= 0) {
+            e.preventDefault();
+            alert('Please enter a valid amount greater than 0.');
+            amountInput.focus();
+            return false;
+        }
+        
+        // Check if due date is set
+        if (!dueDateInput.value) {
+            e.preventDefault();
+            alert('Please select a due date.');
+            dueDateInput.focus();
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

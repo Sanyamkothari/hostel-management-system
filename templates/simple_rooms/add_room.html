@@ -1,0 +1,123 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Room - Simple Management{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Add New Room</h4>
+                    {% if current_hostel_name %}
+                        <small class="text-muted">{{ current_hostel_name }}</small>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <!-- Hostel Selection for Owners -->
+                        {% if user_role == 'owner' and hostels_list %}
+                        <div class="mb-3">
+                            <label for="hostel_id" class="form-label">Hostel <span class="text-danger">*</span></label>
+                            <select name="hostel_id" id="hostel_id" class="form-select" required>
+                                <option value="">Select Hostel</option>
+                                {% for hostel in hostels_list %}
+                                    <option value="{{ hostel.id }}" 
+                                        {% if request.args.get('hostel_id', type=int) == hostel.id %}selected{% endif %}>
+                                        {{ hostel.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+
+                        <!-- Room Number -->
+                        <div class="mb-3">
+                            <label for="room_number" class="form-label">Room Number <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="room_number" 
+                                   name="room_number" 
+                                   placeholder="e.g., 101, A-201, etc."
+                                   required>
+                            <div class="form-text">Enter a unique room number for this hostel.</div>
+                        </div>
+
+                        <!-- Capacity -->
+                        <div class="mb-3">
+                            <label for="capacity" class="form-label">Capacity <span class="text-danger">*</span></label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="capacity" 
+                                   name="capacity" 
+                                   min="1" 
+                                   max="20"
+                                   placeholder="Number of students"
+                                   required>
+                            <div class="form-text">Maximum number of students this room can accommodate (1-20).</div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                {% for status in statuses %}
+                                    <option value="{{ status }}" 
+                                        {% if status == 'Available' %}selected{% endif %}>
+                                        {{ status }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">
+                                <strong>Available:</strong> Ready for student assignment<br>
+                                <strong>Maintenance:</strong> Under repair or renovation<br>
+                                <strong>Full:</strong> At maximum capacity (auto-managed)
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('simple_room.view_rooms') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Rooms
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Add Room
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Card -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-info-circle"></i> Quick Help
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Room Number Tips:</h6>
+                            <ul class="small">
+                                <li>Use floor prefix (e.g., 1st floor: 101, 102)</li>
+                                <li>Include building code if needed (A-101, B-202)</li>
+                                <li>Keep it simple and consistent</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Capacity Guidelines:</h6>
+                            <ul class="small">
+                                <li>Single occupancy: 1 student</li>
+                                <li>Double sharing: 2 students</li>
+                                <li>Dormitory style: 4-8 students</li>
+                                <li>Large dormitory: 10+ students</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

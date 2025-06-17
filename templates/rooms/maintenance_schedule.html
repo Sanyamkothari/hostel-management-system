@@ -1,0 +1,170 @@
+{% extends "layout.html" %}
+
+{% block title %}Maintenance Schedule - Hostel Management{% endblock %}
+
+{% block page_title %}Room Maintenance Schedule{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/room-management.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/optimized-common.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="maintenance-schedule">
+    {% if g.user.role == 'owner' and not current_hostel_name %}
+    <div class="hostel-selector">
+        <h3>Select a Hostel to View Maintenance Schedule</h3>
+        <div class="hostel-cards">
+            {% for hostel in hostels_list %}
+            <a href="{{ url_for('room.maintenance_schedule', hostel_id=hostel.id) }}" class="hostel-card">
+                <h4>{{ hostel.name }}</h4>
+                <p>{{ hostel.address }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+
+    <div class="page-header">
+        <h2>Maintenance Schedule{% if current_hostel_name %} - {{ current_hostel_name }}{% endif %}</h2>
+        <div class="page-actions">
+            <a href="{{ url_for('room.view_rooms') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Rooms
+            </a>
+            <a href="{{ url_for('room.statistics') }}" class="btn btn-info">
+                <i class="fas fa-chart-bar"></i> View Statistics
+            </a>
+        </div>
+    </div>
+
+    <!-- Days Filter -->
+    <div class="days-filter">
+        <form method="GET" class="form-inline">
+            <label for="days" class="mr-2">Show rooms needing attention in the next:</label>
+            <select name="days" id="days" class="form-control mr-2" onchange="this.form.submit()">
+                <option value="7" {% if days_ahead == 7 %}selected{% endif %}>7 days</option>
+                <option value="14" {% if days_ahead == 14 %}selected{% endif %}>14 days</option>
+                <option value="30" {% if days_ahead == 30 %}selected{% endif %}>30 days</option>
+                <option value="60" {% if days_ahead == 60 %}selected{% endif %}>60 days</option>
+                <option value="90" {% if days_ahead == 90 %}selected{% endif %}>90 days</option>
+            </select>
+            {% if g.user.role == 'owner' %}
+            {% for hostel in hostels_list %}
+            {% if hostel.name == current_hostel_name %}
+            <input type="hidden" name="hostel_id" value="{{ hostel.id }}">
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        </form>
+    </div>
+
+    {% if maintenance_rooms %}
+    <div class="maintenance-summary">
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            Found <strong>{{ maintenance_rooms|length }}</strong> room(s) that need maintenance attention.
+        </div>
+    </div>
+
+    <div class="maintenance-list">
+        {% for room in maintenance_rooms %}
+        {% set priority = 'high' if room.complaint_count > 3 else ('medium' if room.complaint_count > 1 else 'low') %}
+        <div class="maintenance-card maintenance-{{ priority }}-priority">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="room-info">
+                        <h4>
+                            Room {{ room.room_number }}
+                            <span class="priority-badge priority-{{ priority }}">
+                                {% if priority == 'high' %}High Priority
+                                {% elif priority == 'medium' %}Medium Priority  
+                                {% else %}Low Priority{% endif %}
+                            </span>
+                        </h4>
+                        <p class="text-muted">
+                            {% if room.hostel_name %}{{ room.hostel_name }} • {% endif %}
+                            Status: <span class="badge badge-warning">{{ room.status }}</span>
+                        </p>
+                    </div>
+
+                    <div class="complaint-summary">
+                        <strong>{{ room.complaint_count }} unresolved complaint(s)</strong>
+                        {% if room.last_complaint_date %}
+                        <br><small class="text-muted">
+                            Last complaint: {{ room.last_complaint_date }}
+                        </small>
+                        {% endif %}
+                    </div>
+
+                    {% if room.complaint_descriptions %}
+                    <div class="complaint-list">
+                        <strong>Recent Complaints:</strong>
+                        {% for complaint in room.complaint_descriptions.split('; ') %}
+                        {% if complaint.strip() %}
+                        <div class="complaint-item">{{ complaint.strip() }}</div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-4">
+                    <div class="maintenance-actions">
+                        <h6>Actions:</h6>
+                        <div class="btn-group-vertical d-grid gap-2">
+                            <a href="{{ url_for('room.view_room', room_id=room.id) }}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
+                            <a href="{{ url_for('room.edit_room', room_id=room.id) }}" 
+                               class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-edit"></i> Edit Room
+                            </a>                            <button type="button" class="btn btn-sm btn-outline-success mark-resolved-btn" 
+                                    data-room-id="{{ room.id }}">
+                                <i class="fas fa-check"></i> Mark Resolved
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-check-circle"></i>
+        <h3>No Maintenance Required</h3>
+        <p>All rooms are in good condition with no unresolved complaints.</p>
+        <a href="{{ url_for('room.view_rooms') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Back to Rooms
+        </a>
+    </div>
+    {% endif %}
+
+    {% endif %}
+</div>
+
+<script>
+// Event delegation for mark resolved buttons
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.mark-resolved-btn')) {
+        const roomId = e.target.closest('.mark-resolved-btn').getAttribute('data-room-id');
+        markAsResolved(roomId);
+    }
+});
+
+function markAsResolved(roomId) {
+    if (confirm('Mark all complaints for this room as resolved?')) {
+        // This would typically make an AJAX call to update complaint statuses
+        // For now, we'll redirect to the room edit page
+        window.location.href = `{{ url_for('room.edit_room', room_id=0) }}`.replace('0', roomId);
+    }
+}
+
+// Auto-refresh every 5 minutes to show updated data
+setTimeout(function() {
+    location.reload();
+}, 300000);
+</script>
+{% endblock %}

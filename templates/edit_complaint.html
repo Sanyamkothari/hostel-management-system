@@ -7,6 +7,21 @@
 <div class="card p-3">
     <form method="POST" action="{{ url_for('complaints.edit_complaint', complaint_id=complaint_id) }}">
         <div class="row g-3">
+            {% if g.user.role == 'owner' %}
+            <div class="col-md-12">
+                <label for="hostel_id" class="form-label">Hostel:</label>
+                <select id="hostel_id" name="hostel_id" class="form-select" disabled>
+                    {% for hostel in hostels_list %}
+                    <option value="{{ hostel.id }}" {% if complaint and complaint.hostel_id == hostel.id %}selected{% endif %}>
+                        {{ hostel.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="hostel_id" value="{{ complaint.hostel_id }}">
+                <small class="form-text text-muted">Hostel assignment cannot be changed after complaint creation.</small>
+            </div>
+            {% endif %}
+            
             <div class="col-md-6">
                 <label for="reported_by_name" class="form-label">Reported By (Name):</label>
                 <input type="text" id="reported_by_name" name="reported_by_name" class="form-control" value="{{ complaint.reported_by_name if complaint else '' }}">

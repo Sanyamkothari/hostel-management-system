@@ -1,0 +1,191 @@
+{% extends "layout.html" %}
+
+{% block title %}Owner Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/owner-dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Owner Dashboard</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">            <div class="btn-group me-2">
+                <a href="{{ url_for('owner.manage_hostels') }}" class="btn btn-sm btn-outline-secondary">Manage Hostels</a>
+                <a href="{{ url_for('owner.manage_managers') }}" class="btn btn-sm btn-outline-secondary">Manage Managers</a>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('dashboard.activity_reports') }}">
+                        <i class="fas fa-clock"></i> Activity Reports
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('dashboard.room_occupancy_report') }}">
+                        <i class="fas fa-bed"></i> Room Occupancy
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('dashboard.fee_status_report') }}">
+                        <i class="fas fa-file-invoice-dollar"></i> Fee Status
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overall Statistics -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Overall Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Hostels</h5>
+                                    <h2 class="card-text">{{ hostels|length }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Total Students</h5>
+                                    <h2 class="card-text">{{ overall_stats.total_students }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Average Occupancy</h5>
+                                    <h2 class="card-text">{{ overall_stats.occupancy_rate|round(1) }}%</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Pending Fees</h5>
+                                    <h2 class="card-text">{{ format_currency(overall_stats.pending_fee_amount) }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hostels List -->
+    <h2>Hostel Properties</h2>
+    <div class="row">
+        {% for hostel in hostels %}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{{ hostel.name }}</h5>
+                    <small class="text-muted">{{ hostel.address }}</small>
+                </div>
+                <div class="card-body">
+                    <div class="row">                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h6>Occupancy Rate</h6>                                <div class="progress progress-large">
+                                    <div class="progress-bar bg-success occupancy-bar" role="progressbar" 
+                                         data-width="{{ hostel.stats.occupancy_rate }}%"
+                                         data-value="{{ hostel.stats.occupancy_rate|round(1) }}"
+                                         aria-valuemin="0" aria-valuemax="100"
+                                         title="Occupancy rate: {{ hostel.stats.occupancy_rate|round(1) }}%">
+                                        {{ hostel.stats.occupancy_rate|round(1) }}%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <h6>Students: {{ hostel.stats.total_students }}</h6>
+                                <h6>Rooms: {{ hostel.stats.total_rooms }} ({{ hostel.stats.vacant_rooms }} vacant)</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h6>Pending Fees</h6>
+                                <h4>
+                                    {{ format_currency(hostel.stats.pending_fee_amount) }}
+                                    <small class="text-muted">({{ hostel.stats.pending_fee_count }} students)</small>
+                                </h4>
+                            </div>
+                            <div class="mb-3">
+                                <h6>Open Complaints</h6>
+                                <h4>{{ hostel.stats.open_complaints }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <a href="{{ url_for('dashboard.index', hostel_id=hostel.id) }}" class="btn btn-sm btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>        {% endfor %}
+    </div>
+
+    <!-- Recent Activity Section -->
+    {% if recent_activity %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock"></i> Recent Activity Across All Hostels
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="recent-activity">
+                        <ul class="activity-list list-unstyled">
+                            {% for activity in recent_activity %}
+                            <li class="activity-item {{ activity.type }} d-flex mb-3">
+                                <span class="activity-icon me-3">
+                                    {% if activity.type == 'student' %}
+                                        <i class="fas fa-user-plus text-success"></i>
+                                    {% elif activity.type == 'room' %}
+                                        <i class="fas fa-door-open text-info"></i>
+                                    {% elif activity.type == 'fee' %}
+                                        <i class="fas fa-file-invoice-dollar text-warning"></i>
+                                    {% elif activity.type == 'expense' %}
+                                        <i class="fas fa-money-bill-wave text-danger"></i>
+                                    {% else %}
+                                        <i class="fas fa-info-circle text-muted"></i>
+                                    {% endif %}
+                                </span>
+                                <div class="activity-content flex-grow-1">
+                                    <p class="mb-1">{{ activity.description }}</p>
+                                    <small class="text-muted activity-time">{{ activity.time }}</small>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/optimized-utils.js') }}"></script>
+<script>
+    // Initialize occupancy bars with animation
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCapacityBars();
+        
+        // Set ARIA values for progress bars from data attributes
+        document.querySelectorAll('.occupancy-bar[data-value]').forEach(function(bar) {
+            const value = bar.getAttribute('data-value');
+            bar.setAttribute('aria-valuenow', value);
+        });
+    });
+</script>
+{% endblock %}

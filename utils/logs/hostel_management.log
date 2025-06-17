@@ -1,0 +1,376 @@
+2025-06-11 18:24:59 - app - INFO - setup_logging:121 - Hostel Management System starting up - Environment: production
+2025-06-11 18:24:59 - app - INFO - setup_logging:122 - Logging level set to: INFO
+2025-06-11 18:24:59 - app - INFO - <module>:85 - Production security headers configured with Flask-Talisman
+2025-06-11 18:25:00 - app - INFO - <module>:105 - SocketIO configured with Redis message queue: redis://localhost:6379/1
+2025-06-11 18:25:00 - app - INFO - __init__:112 - Server initialized for threading.
+2025-06-11 18:25:22 - app - INFO - setup_logging:121 - Hostel Management System starting up - Environment: production
+2025-06-11 18:25:22 - app - INFO - setup_logging:122 - Logging level set to: INFO
+2025-06-11 18:25:22 - app - INFO - <module>:85 - Production security headers configured with Flask-Talisman
+2025-06-11 18:25:22 - app - INFO - <module>:105 - SocketIO configured with Redis message queue: redis://localhost:6379/1
+2025-06-11 18:25:22 - app - INFO - __init__:112 - Server initialized for threading.
+2025-06-11 18:42:46 - app - INFO - setup_logging:121 - Hostel Management System starting up - Environment: production
+2025-06-11 18:42:46 - app - INFO - setup_logging:122 - Logging level set to: INFO
+2025-06-11 18:42:46 - app - INFO - <module>:85 - Production security headers configured with Flask-Talisman
+2025-06-11 18:42:47 - app - INFO - <module>:105 - SocketIO configured with Redis message queue: redis://localhost:6379/1
+2025-06-11 18:42:47 - app - INFO - __init__:112 - Server initialized for threading.
+2025-06-11 18:45:29 - app - INFO - setup_logging:121 - Hostel Management System starting up - Environment: production
+2025-06-11 18:45:29 - app - INFO - setup_logging:122 - Logging level set to: INFO
+2025-06-11 18:45:29 - app - INFO - <module>:85 - Production security headers configured with Flask-Talisman
+2025-06-11 18:45:29 - app - INFO - <module>:105 - SocketIO configured with Redis message queue: redis://localhost:6379/1
+2025-06-11 18:45:29 - app - INFO - __init__:112 - Server initialized for threading.
+2025-06-11 19:34:18 - app - INFO - setup_logging:121 - Hostel Management System starting up - Environment: production
+2025-06-11 19:34:18 - app - INFO - setup_logging:122 - Logging level set to: INFO
+2025-06-11 19:34:18 - app - INFO - <module>:85 - Production security headers configured with Flask-Talisman
+2025-06-11 19:34:18 - app - INFO - <module>:105 - SocketIO configured with Redis message queue: redis://localhost:6379/1
+2025-06-11 19:34:18 - app - INFO - __init__:112 - Server initialized for threading.
+2025-06-11 19:36:22 - app - INFO - setup_logging:121 - Hostel Management System starting up - Environment: production
+2025-06-11 19:36:22 - app - INFO - setup_logging:122 - Logging level set to: INFO
+2025-06-11 19:36:22 - app - INFO - <module>:85 - Production security headers configured with Flask-Talisman
+2025-06-11 19:36:22 - app - INFO - <module>:105 - SocketIO configured with Redis message queue: redis://localhost:6379/1
+2025-06-11 19:36:22 - app - INFO - __init__:112 - Server initialized for threading.
+2025-06-11 19:37:31 - app - INFO - setup_logging:121 - Hostel Management System starting up - Environment: production
+2025-06-11 19:37:31 - app - INFO - setup_logging:122 - Logging level set to: INFO
+2025-06-11 19:37:31 - app - INFO - <module>:85 - Production security headers configured with Flask-Talisman
+2025-06-11 19:37:31 - app - INFO - <module>:105 - SocketIO configured with Redis message queue: redis://localhost:6379/1
+2025-06-11 19:37:31 - app - INFO - __init__:112 - Server initialized for threading.
+2025-06-11 19:43:39 - app - INFO - setup_logging:121 - Hostel Management System starting up - Environment: production
+2025-06-11 19:43:39 - app - INFO - setup_logging:122 - Logging level set to: INFO
+2025-06-11 19:43:39 - app - INFO - <module>:85 - Production security headers configured with Flask-Talisman
+2025-06-11 19:43:39 - app - INFO - <module>:105 - SocketIO configured with Redis message queue: redis://localhost:6379/1
+2025-06-11 19:43:39 - app - INFO - __init__:112 - Server initialized for threading.
+2025-06-11 19:43:39 - app - INFO - <module>:267 - Starting Flask-SocketIO development server with production configuration...
+2025-06-11 19:44:54 - app - INFO - setup_logging:121 - Hostel Management System starting up - Environment: production
+2025-06-11 19:44:54 - app - INFO - setup_logging:122 - Logging level set to: INFO
+2025-06-11 19:44:54 - app - INFO - <module>:85 - Production security headers configured with Flask-Talisman
+2025-06-11 19:44:54 - app - INFO - <module>:105 - SocketIO configured with Redis message queue: redis://localhost:6379/1
+2025-06-11 19:44:54 - app - INFO - __init__:112 - Server initialized for threading.
+2025-06-11 19:45:55 - app - INFO - <module>:267 - Starting Flask-SocketIO development server with production configuration...
+2025-06-11 19:45:57 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/ - User: anonymous
+2025-06-11 19:45:57 - app - ERROR - log_exception:875 - Exception on / [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:46:24 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/favicon.ico - User: anonymous
+2025-06-11 19:46:24 - app - ERROR - log_exception:875 - Exception on /favicon.ico [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:46:33 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/health - User: anonymous
+2025-06-11 19:46:33 - app - ERROR - log_exception:875 - Exception on /health [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:46:35 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/favicon.ico - User: anonymous
+2025-06-11 19:46:35 - app - ERROR - log_exception:875 - Exception on /favicon.ico [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:46:37 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/health/ready - User: anonymous
+2025-06-11 19:46:37 - app - ERROR - log_exception:875 - Exception on /health/ready [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:46:39 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/favicon.ico - User: anonymous
+2025-06-11 19:46:39 - app - ERROR - log_exception:875 - Exception on /favicon.ico [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:46:41 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/health/live - User: anonymous
+2025-06-11 19:46:41 - app - ERROR - log_exception:875 - Exception on /health/live [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:46:42 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/favicon.ico - User: anonymous
+2025-06-11 19:46:42 - app - ERROR - log_exception:875 - Exception on /favicon.ico [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:46:46 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/health?id=5343ea01-3a52-47d8-be63-9e0fada2c6db&vscodeBrowserReqId=1749651406002 - User: anonymous
+2025-06-11 19:46:46 - app - ERROR - log_exception:875 - Exception on /health [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:47:56 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/ - User: anonymous
+2025-06-11 19:47:56 - app - ERROR - log_exception:875 - Exception on / [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:47:56 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/favicon.ico - User: anonymous
+2025-06-11 19:47:56 - app - ERROR - log_exception:875 - Exception on /favicon.ico [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:48:23 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/ - User: anonymous
+2025-06-11 19:48:23 - app - ERROR - log_exception:875 - Exception on / [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:48:23 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/favicon.ico - User: anonymous
+2025-06-11 19:48:23 - app - ERROR - log_exception:875 - Exception on /favicon.ico [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:48:26 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/health - User: anonymous
+2025-06-11 19:48:26 - app - ERROR - log_exception:875 - Exception on /health [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:48:26 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/favicon.ico - User: anonymous
+2025-06-11 19:48:26 - app - ERROR - log_exception:875 - Exception on /favicon.ico [GET]
+Traceback (most recent call last):
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 941, in finalize_request
+    response = self.process_response(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask\app.py", line 1319, in process_response
+    response = self.ensure_sync(func)(response)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 275, in _set_response_headers
+    self._set_content_security_policy_headers(response.headers, options)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 383, in _set_content_security_policy_headers
+    policy = self._parse_policy(policy)
+  File "C:\Users\sanya\OneDrive\Desktop\hostel_management_v2\venv\Lib\site-packages\flask_talisman\talisman.py", line 319, in _parse_policy
+    content = ' '.join(content)
+TypeError: can only join an iterable
+2025-06-11 19:48:57 - app - INFO - setup_logging:121 - Hostel Management System starting up - Environment: production
+2025-06-11 19:48:57 - app - INFO - setup_logging:122 - Logging level set to: INFO
+2025-06-11 19:48:57 - app - INFO - <module>:83 - Production security headers configured with Flask-Talisman
+2025-06-11 19:48:57 - app - INFO - <module>:103 - SocketIO configured with Redis message queue: redis://localhost:6379/1
+2025-06-11 19:48:57 - app - INFO - __init__:112 - Server initialized for threading.
+2025-06-11 19:48:57 - app - INFO - <module>:270 - Starting Flask-SocketIO development server with production configuration...
+2025-06-11 19:49:14 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/ - User: anonymous
+2025-06-11 19:49:14 - app - INFO - log_response_info:134 - Response: 302 for GET http://127.0.0.1:5000/
+2025-06-11 19:49:19 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/health - User: anonymous
+2025-06-11 19:49:19 - app - INFO - log_response_info:134 - Response: 302 for GET http://127.0.0.1:5000/health
+2025-06-11 19:49:28 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/ - User: anonymous
+2025-06-11 19:49:28 - app - INFO - log_response_info:134 - Response: 302 for GET http://127.0.0.1:5000/
+2025-06-11 19:50:15 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/auth/login - User: anonymous
+2025-06-11 19:50:15 - app - INFO - log_response_info:134 - Response: 302 for GET http://127.0.0.1:5000/auth/login
+2025-06-11 19:51:45 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/ - User: anonymous
+2025-06-11 19:51:45 - app - INFO - log_response_info:134 - Response: 302 for GET http://127.0.0.1:5000/
+2025-06-11 19:51:49 - app - INFO - log_request_info:129 - Request: GET http://127.0.0.1:5000/auth/login - User: anonymous
+2025-06-11 19:51:49 - app - INFO - log_response_info:134 - Response: 302 for GET http://127.0.0.1:5000/auth/login
+2025-06-11 20:01:37 - app - INFO - setup_logging:121 - Hostel Management System starting up - Environment: production
+2025-06-11 20:01:37 - app - INFO - setup_logging:122 - Logging level set to: INFO
+2025-06-11 20:01:37 - app - INFO - <module>:82 - Production security headers configured with Flask-Talisman
+2025-06-11 20:01:37 - app - INFO - <module>:102 - SocketIO configured with Redis message queue: redis://localhost:6379/1
+2025-06-11 20:01:37 - app - INFO - __init__:112 - Server initialized for threading.
+2025-06-11 20:01:37 - app - INFO - <module>:269 - Starting Flask-SocketIO development server with production configuration...
+2025-06-14 17:39:17 - app - INFO - setup_logging:121 - Hostel Management System starting up - Environment: production
+2025-06-14 17:39:17 - app - INFO - setup_logging:122 - Logging level set to: INFO
+2025-06-14 17:39:17 - app - INFO - <module>:82 - Production security headers configured with Flask-Talisman
+2025-06-14 17:39:17 - app - INFO - <module>:102 - SocketIO configured with Redis message queue: redis://default:G9q6zfsC4R0baKjaBaMs4UUGCgZajArb@redis-16252.c92.us-east-1-3.ec2.redns.redis-cloud.com:16252
+2025-06-14 17:39:17 - app - INFO - __init__:112 - Server initialized for threading.

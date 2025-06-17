@@ -1,0 +1,84 @@
+/* 
+ * Student Detail Styles
+ * Contains styles for student profile and detail pages 
+ */
+
+/* Room card styles */
+.room-card {
+    border: 1px solid #eaeaea;
+    border-radius: 0.5rem;
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.room-number {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.room-status {
+    margin-top: 0.5rem;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.status-available {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-full {
+    background-color: #dc3545;
+    color: white;
+}
+
+.status-maintenance {
+    background-color: #ffc107;
+    color: black;
+}
+
+/* No room assigned section */
+.no-room-assigned {
+    text-align: center;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+}
+
+.no-room-assigned i {
+    font-size: 3rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+/* No details and no fees sections */
+.no-details, .no-fees {
+    text-align: center;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.no-details i, .no-fees i {
+    font-size: 2.5rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+/* General student detail styles */
+.student-profile {
+    margin-top: 1rem;
+}
+
+.actions-bar {
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+}
